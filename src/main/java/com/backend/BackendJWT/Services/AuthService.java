@@ -15,6 +15,8 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 public class AuthService {
@@ -81,6 +83,19 @@ public class AuthService {
         return AuthResponse.builder()
                 .token(jwtService.getToken(user))
                 .build();
+    }
+
+    public AuthResponse updatePassword(UpdatePasswordRequest request) {
+        Optional<User> optionalUser = userRepository.findById(request.getId());
+
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+            userRepository.save(user);
+            return new AuthResponse("Password updated successfully");
+        } else {
+            return new AuthResponse("Error al actualizar la contraseña");
+        }
     }
 
     // Custom exception classes (create separate files for these)

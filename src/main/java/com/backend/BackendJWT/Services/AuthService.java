@@ -98,6 +98,14 @@ public class AuthService {
         }
     }
 
+    public AuthResponse getUser(SearchUserRequest request){
+        if (userRepository.existsByEmail(request.getEmail())) {
+            return new AuthResponse("El correo electronico existe");
+        }else{
+            return new AuthResponse("El correo electronico no existe");
+        }
+    }
+
     // Custom exception classes (create separate files for these)
     public class UsernameAlreadyExistsException extends RuntimeException {
         public UsernameAlreadyExistsException(String message) {

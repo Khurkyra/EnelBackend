@@ -7,9 +7,8 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-public class LoginRequest {
-    String rut;
-    String password;
+@AllArgsConstructor
+public class SearchUserRequest {
+    private String email;
 }

@@ -26,11 +26,12 @@ public class AuthController {
     {
         return ResponseEntity.ok(authService.register(request));
     }
+    //obtiene al usuario para verificar su existencia en el sistema
     @GetMapping("update-password")
     public ResponseEntity<AuthResponse>searchUser(@RequestBody SearchUserRequest request){
         return ResponseEntity.ok(authService.getUser(request));
     }
-
+    //si existe y codigos coinciden, se envia nueva contraseña a este endpoint para su actualizacion
     @PutMapping("/update-password")
     public ResponseEntity<AuthResponse> updatePassword(@RequestBody UpdatePasswordRequest request) {
         return ResponseEntity.ok(authService.updatePassword(request));

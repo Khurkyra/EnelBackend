@@ -85,26 +85,46 @@ public class AuthService {
                 .build();
     }
 
-    public AuthResponse updatePassword(UpdatePasswordRequest request) {
-        Optional<User> optionalUser = userRepository.findById(request.getId());
+    public AuthResponse getUser(SearchUserRequest request) {
+        try {
+            boolean emailExists = userRepository.existsByEmail(request.getEmail());
 
-        if (optionalUser.isPresent()) {
-            User user = optionalUser.get();
+            if (emailExists) {
+                return new AuthResponse("El correo electronico existe");
+            } else {
+                throw new UsernameNotFoundException("Usuario no encontrado");
+            }
+        } catch (UsernameNotFoundException e) {
+            // Manejo de la excepción específica UsernameNotFoundException
+            return new AuthResponse("Error de autenticación"+e.getMessage());
+        } catch (Exception e) {
+            // Manejo de cualquier otra excepción inesperada
+            throw new RuntimeException("Error interno del servidor: " + e.getMessage());
+        }
+    }
+
+
+
+    public AuthResponse updatePassword(UpdatePasswordRequest request) {
+        try {
+            // Buscar el usuario por su ID y lanzar excepción si no se encuentra
+            Optional<User> optionalUser = userRepository.findById(request.getId());
+            User user = optionalUser.orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+
+            // Actualizar la contraseña del usuario
             user.setPassword(passwordEncoder.encode(request.getNewPassword()));
             userRepository.save(user);
-            return new AuthResponse("Password updated successfully");
-        } else {
-            return new AuthResponse("Error al actualizar la contraseña");
+
+            return new AuthResponse("Su contraseña ha sido actualizada");
+        } catch (UsernameNotFoundException e) {
+            // Manejo de excepción específica si el usuario no es encontrado
+            throw new RuntimeException("Error de autenticación "+e.getMessage());
+        } catch (Exception e) {
+            // Manejo de otras excepciones inesperadas
+            throw new RuntimeException("Error interno del servidor: " + e.getMessage());
         }
     }
 
-    public AuthResponse getUser(SearchUserRequest request){
-        if (userRepository.existsByEmail(request.getEmail())) {
-            return new AuthResponse("El correo electronico existe");
-        }else{
-            return new AuthResponse("El correo electronico no existe");
-        }
-    }
 
     // Custom exception classes (create separate files for these)
     public class UsernameAlreadyExistsException extends RuntimeException {

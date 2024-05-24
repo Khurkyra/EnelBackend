@@ -14,7 +14,6 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 
 @Builder
@@ -22,41 +21,41 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Data
-@Table(name = "\"user\"")
-public class User implements UserDetails {
+@Table(name = "cliente")
+public class Cliente implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
-    @Size(min = 1, max = 30)
+    @Size(min = 7, max = 20)
     @Column(nullable = false, length = 30)
     private String rut;
 
     @NotNull
-    @Size(min = 8, max = 12)
+    @Size(min = 4, max = 12)
     @Column(nullable = false)
     private String password;
 
     @NotNull
-    @Size(min = 1, max = 30)
+    @Size(min = 4, max = 30)
     @Column(nullable = false, length = 30)
     private String firstname;
 
     @NotNull
-    @Size(min = 1, max = 30)
+    @Size(min = 4, max = 30)
     @Column(nullable = false, length = 30)
     private String lastname;
 
     @NotNull
     @Email
-    @Size(min = 1, max = 255)
+    @Size(min = 4, max = 255)
     @Column(nullable = false, length = 255)
     private String email;
 
 
     @NotNull
-    @Size(min = 12, max = 12)
+    @Size(min = 8, max = 12)
     @Column(nullable = false, length = 12)
     private String phoneNumber;
 

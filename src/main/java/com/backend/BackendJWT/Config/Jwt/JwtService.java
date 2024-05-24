@@ -1,6 +1,6 @@
 package com.backend.BackendJWT.Config.Jwt;
 
-import com.backend.BackendJWT.Models.Auth.User;
+import com.backend.BackendJWT.Models.Auth.Cliente;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -29,7 +29,7 @@ public class JwtService {
 
     private String getToken(Map<String, Object> extraClaims, UserDetails user) {
         // Asegúrate de que UserDetails sea tu implementación de User
-        User principal = (User) user;
+        Cliente principal = (Cliente) user;
 
         Claims claims = Jwts.claims().setSubject(user.getUsername());
 
@@ -39,7 +39,7 @@ public class JwtService {
                 .map(GrantedAuthority::getAuthority)
                 .orElse(null);
 
-        claims.put("id_user", principal.getId());
+        claims.put("id_cliente", principal.getId());
         claims.put("roles", role);
 
         return Jwts.builder()

@@ -3,7 +3,7 @@ package com.backend.BackendJWT.Services;
 import com.backend.BackendJWT.Models.Auth.*;
 import com.backend.BackendJWT.Config.Jwt.JwtService;
 import com.backend.BackendJWT.Repositories.Auth.RoleRepository;
-import com.backend.BackendJWT.Repositories.Auth.UserRepository;
+import com.backend.BackendJWT.Repositories.Auth.ClienteRepository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,7 +21,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AuthService {
 
-    private final UserRepository userRepository;
+    private final ClienteRepository clienteRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
@@ -35,7 +35,7 @@ public class AuthService {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getRut(), request.getPassword()));
 
             // Busca el usuario en el repositorio usando el RUT
-            UserDetails user = userRepository.findByRut(request.getRut())
+            UserDetails user = clienteRepository.findByRut(request.getRut())
                     .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
 
             // Genera el token JWT para el usuario
@@ -55,39 +55,50 @@ public class AuthService {
     }
 
     public AuthResponse register(RegisterRequest request) {
-        if (userRepository.existsByRut(request.getRut())) {
-            throw new UsernameAlreadyExistsException("Rut '" + request.getRut() + "' is already registered");
+        try {
+            if (clienteRepository.existsByRut(request.getRut())) {
+                throw new UsernameAlreadyExistsException("Rut '" + request.getRut() + "' is already registered");
+            }
+
+            if (clienteRepository.existsByEmail(request.getEmail())) {
+                throw new EmailAlreadyExistsException("Email '" + request.getEmail() + "' is already associated with an account");
+            }
+
+            // Fetch the default role
+            Role defaultRole = roleRepository.findByRoleName(ERole.USER)
+                    .orElseThrow(() -> new RuntimeException("Default role not found"));
+
+            Cliente cliente = Cliente.builder()
+                    .rut(request.getRut())
+                    .password(passwordEncoder.encode(request.getPassword()))
+                    .firstname(request.getFirstname())
+                    .lastname(request.getLastname())
+                    .email(request.getEmail())
+                    .phoneNumber(request.getPhoneNumber())
+                    .role(defaultRole)  // Set the fetched role
+                    .build();
+
+            clienteRepository.save(cliente);  // Persist the new user with the role in the database.
+
+            // Generate token and return response
+            return AuthResponse.builder()
+                    .token(jwtService.getToken(cliente))
+                    .build();
+        } catch (UsernameAlreadyExistsException | EmailAlreadyExistsException e) {
+            // Maneja excepciones específicas relacionadas con el registro de usuario
+            throw e;
+        } catch (RuntimeException e) {
+            // Maneja cualquier otra excepción de tiempo de ejecución
+            throw new RuntimeException("Error al registrar el usuario: " + e.getMessage(), e);
+        } catch (Exception e) {
+            // Maneja cualquier otra excepción
+            throw new RuntimeException("Se produjo un error inesperado durante el registro: " + e.getMessage(), e);
         }
-
-        if (userRepository.existsByEmail(request.getEmail())) {
-            throw new EmailAlreadyExistsException("Email '" + request.getEmail() + "' is already associated with an account");
-        }
-
-        // Fetch the default role
-        Role defaultRole = roleRepository.findByRoleName(ERole.USER)
-                .orElseThrow(() -> new RuntimeException("Default role not found"));
-
-        User user = User.builder()
-                .rut(request.getRut())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .firstname(request.getFirstname())
-                .lastname(request.getLastname())
-                .email(request.getEmail())
-                .phoneNumber(request.getPhoneNumber())
-                .role(defaultRole)  // Set the fetched role
-                .build();
-
-        userRepository.save(user);  // Persist the new user with the role in the database.
-
-        // Generate token and return response
-        return AuthResponse.builder()
-                .token(jwtService.getToken(user))
-                .build();
     }
 
     public AuthResponse getUser(SearchUserRequest request) {
         try {
-            boolean emailExists = userRepository.existsByEmail(request.getEmail());
+            boolean emailExists = clienteRepository.existsByEmail(request.getEmail());
 
             if (emailExists) {
                 return new AuthResponse("El correo electronico existe");
@@ -108,12 +119,12 @@ public class AuthService {
     public AuthResponse updatePassword(UpdatePasswordRequest request) {
         try {
             // Buscar el usuario por su ID y lanzar excepción si no se encuentra
-            Optional<User> optionalUser = userRepository.findById(request.getId());
-            User user = optionalUser.orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+            Optional<Cliente> optionalUser = clienteRepository.findById(request.getId());
+            Cliente user = optionalUser.orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
 
             // Actualizar la contraseña del usuario
             user.setPassword(passwordEncoder.encode(request.getNewPassword()));
-            userRepository.save(user);
+            clienteRepository.save(user);
 
             return new AuthResponse("Su contraseña ha sido actualizada");
         } catch (UsernameNotFoundException e) {

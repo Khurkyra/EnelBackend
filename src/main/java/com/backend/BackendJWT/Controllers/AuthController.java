@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @CrossOrigin("*")
-@RequestMapping("/auth")
+@RequestMapping("auth")
 @RequiredArgsConstructor
 public class AuthController {
     
@@ -27,7 +27,7 @@ public class AuthController {
         return ResponseEntity.ok(authService.register(request));
     }
     //obtiene al usuario para verificar su existencia en el sistema
-    @GetMapping("update-password")
+    @GetMapping("/update-password")
     public ResponseEntity<AuthResponse>searchUser(@RequestBody SearchUserRequest request){
         return ResponseEntity.ok(authService.getUser(request));
     }

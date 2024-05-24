@@ -1,6 +1,7 @@
 package com.backend.BackendJWT.Config;
 
-import com.backend.BackendJWT.Repositories.Auth.UserRepository;
+import com.backend.BackendJWT.Models.Auth.Cliente;
+import com.backend.BackendJWT.Repositories.Auth.ClienteRepository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -18,7 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @RequiredArgsConstructor
 public class ApplicationConfig {
 
-    private final UserRepository userRepository;
+    private final ClienteRepository clienteRepository;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception
@@ -42,7 +43,7 @@ public class ApplicationConfig {
 
     @Bean
     public UserDetailsService userDetailService() {
-        return rut -> userRepository.findByRut(rut)
+        return rut -> clienteRepository.findByRut(rut)
         .orElseThrow(()-> new UsernameNotFoundException("User not found"));
     }
 

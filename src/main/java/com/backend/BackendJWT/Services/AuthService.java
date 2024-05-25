@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -46,7 +47,10 @@ public class AuthService {
                     .success(true)
                     .token(token)
                     .build();
-        } catch (AuthenticationException e) {
+        }catch(UsernameNotFoundException e){
+            throw new UsernameNotFoundException("Usuario no encontrado");
+        }
+        catch (AuthenticationException e) {
             // Manejo de errores de autenticación
             throw new RuntimeException("Error de autenticación: " + e.getMessage());
         } catch (Exception e) {

@@ -82,11 +82,12 @@ public class AuthService {
 
             // Generate token and return response
             return AuthResponse.builder()
+                    .success(true)
                     .token(jwtService.getToken(cliente))
                     .build();
         } catch (UsernameAlreadyExistsException | EmailAlreadyExistsException e) {
             // Maneja excepciones específicas relacionadas con el registro de usuario
-            throw e;
+            throw new Error("Ha ocurrido un error "+e);
         } catch (RuntimeException e) {
             // Maneja cualquier otra excepción de tiempo de ejecución
             throw new RuntimeException("Error al registrar el usuario: " + e.getMessage(), e);
@@ -101,13 +102,13 @@ public class AuthService {
             boolean emailExists = clienteRepository.existsByEmail(request.getEmail());
 
             if (emailExists) {
-                return new AuthResponse("El correo electronico existe");
+                return new AuthResponse(false,"El correo electronico existe");
             } else {
                 throw new UsernameNotFoundException("Usuario no encontrado");
             }
         } catch (UsernameNotFoundException e) {
             // Manejo de la excepción específica UsernameNotFoundException
-            return new AuthResponse("Error de autenticación"+e.getMessage());
+            throw new UsernameNotFoundException("Usuario no encontrado "+e.getMessage());
         } catch (Exception e) {
             // Manejo de cualquier otra excepción inesperada
             throw new RuntimeException("Error interno del servidor: " + e.getMessage());
@@ -126,7 +127,7 @@ public class AuthService {
             user.setPassword(passwordEncoder.encode(request.getNewPassword()));
             clienteRepository.save(user);
 
-            return new AuthResponse("Su contraseña ha sido actualizada");
+            return new AuthResponse(true,"Su contraseña ha sido actualizada");
         } catch (UsernameNotFoundException e) {
             // Manejo de excepción específica si el usuario no es encontrado
             throw new RuntimeException("Error de autenticación "+e.getMessage());

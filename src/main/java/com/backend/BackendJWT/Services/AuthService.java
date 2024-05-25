@@ -47,15 +47,18 @@ public class AuthService {
                     .success(true)
                     .token(token)
                     .build();
-        }catch(UsernameNotFoundException e){
-            throw new UsernameNotFoundException("Usuario no encontrado");
-        }
-        catch (AuthenticationException e) {
+        } catch (AuthenticationException e) {
             // Manejo de errores de autenticación
-            throw new RuntimeException("Error de autenticación: " + e.getMessage());
+            return AuthResponse.builder()
+                    .success(false)
+                    .token("Error de autenticación: " + e.getMessage())
+                    .build();
         } catch (Exception e) {
             // Manejo de otros errores inesperados
-            throw new RuntimeException("Error interno del servidor: " + e.getMessage());
+            return AuthResponse.builder()
+                    .success(false)
+                    .token("Error interno del servidor: " + e.getMessage())
+                    .build();
         }
     }
 

@@ -43,6 +43,7 @@ public class AuthService {
 
             // Retorna la respuesta con el token
             return AuthResponse.builder()
+                    .success(true)
                     .token(token)
                     .build();
         } catch (AuthenticationException e) {
@@ -102,13 +103,10 @@ public class AuthService {
             boolean emailExists = clienteRepository.existsByEmail(request.getEmail());
 
             if (emailExists) {
-                return new AuthResponse(false,"El correo electronico existe");
+                return new AuthResponse(true,"Se le enviará un codigo de verifiación");
             } else {
-                throw new UsernameNotFoundException("Usuario no encontrado");
+                return new AuthResponse(false, "Usuario no encontrado");
             }
-        } catch (UsernameNotFoundException e) {
-            // Manejo de la excepción específica UsernameNotFoundException
-            throw new UsernameNotFoundException("Usuario no encontrado "+e.getMessage());
         } catch (Exception e) {
             // Manejo de cualquier otra excepción inesperada
             throw new RuntimeException("Error interno del servidor: " + e.getMessage());

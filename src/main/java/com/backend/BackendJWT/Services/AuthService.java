@@ -125,7 +125,7 @@ public class AuthService {
     public AuthResponse updatePassword(UpdatePasswordRequest request) {
         try {
             // Buscar el usuario por su ID y lanzar excepción si no se encuentra
-            Optional<Cliente> optionalUser = clienteRepository.findById(request.getId());
+            Optional<Cliente> optionalUser = clienteRepository.findByEmail(request.getEmail());
             Cliente user = optionalUser.orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
 
             // Actualizar la contraseña del usuario

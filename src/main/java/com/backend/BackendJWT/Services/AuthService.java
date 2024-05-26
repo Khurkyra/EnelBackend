@@ -110,13 +110,19 @@ public class AuthService {
             boolean emailExists = clienteRepository.existsByEmail(request.getEmail());
 
             if (emailExists) {
-                return new AuthResponse(true,"Se le enviará un codigo de verifiación");
+                return AuthResponse.builder()
+                        .success(true)
+                        .token("Se le enviará un codigo de verifiación")
+                        .build();
             } else {
-                return new AuthResponse(false, "Usuario no encontrado");
+                return AuthResponse.builder()
+                        .success(false)
+                        .token("No existe")
+                        .build();
             }
         } catch (Exception e) {
             // Manejo de cualquier otra excepción inesperada
-            throw new RuntimeException("Error interno del servidor: " + e.getMessage());
+            throw new RuntimeException("Error interno del servidor hola: " + e.getMessage());
         }
     }
 

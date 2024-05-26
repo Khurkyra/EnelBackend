@@ -27,7 +27,7 @@ public class AuthController {
         return ResponseEntity.ok(authService.register(request));
     }
     //obtiene al usuario para verificar su existencia en el sistema
-    @GetMapping("/update-password")
+    @PostMapping("/getEmail")
     public ResponseEntity<AuthResponse>searchUser(@RequestBody SearchUserRequest request){
         return ResponseEntity.ok(authService.getUser(request));
     }

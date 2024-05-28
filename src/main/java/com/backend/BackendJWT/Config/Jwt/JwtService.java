@@ -25,7 +25,18 @@ public class JwtService {
         return getToken(new HashMap<>(), user);
     }
 
-
+    public String getUserIdFromToken(String token) {
+        try {
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(SECRET_KEY)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+            return claims.getSubject();
+        } catch (Exception e) {
+            throw new RuntimeException("Invalid JWT token", e);
+        }
+    }
 
     private String getToken(Map<String, Object> extraClaims, UserDetails user) {
         // Asegúrate de que UserDetails sea tu implementación de User
@@ -46,7 +57,7 @@ public class JwtService {
                 .setClaims(claims)
                 .addClaims(extraClaims)
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis()+1000*60*24))
+                .setExpiration(new Date(System.currentTimeMillis()+1000 * 60 * 60 * 24))
                 .signWith(getKey(), SignatureAlgorithm.HS256)
                 .compact();
     }

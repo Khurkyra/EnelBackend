@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class AuthResponse {
-    private boolean success;
-    private String token;
+public class RegisterMedidorRequest {
+    private String nombre;
+    private String numcliente;
 }

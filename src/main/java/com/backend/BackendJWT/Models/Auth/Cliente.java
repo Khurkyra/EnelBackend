@@ -1,5 +1,6 @@
 package com.backend.BackendJWT.Models.Auth;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,6 +15,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 
 @Builder
@@ -65,6 +67,10 @@ public class Cliente implements UserDetails {
     @NotNull
     private Role role;  // Ensure there is no @Enumerated here as Role is an entity
 
+    @OneToMany(mappedBy = "cliente")
+    @JsonManagedReference
+    private List<Medidor> medidores;
+
     @Override
     public String getUsername() {
         // Puedes devolver el RUT, email, o cualquier otro identificador único
@@ -77,11 +83,11 @@ public class Cliente implements UserDetails {
     }
     @Override
     public boolean isAccountNonExpired() {
-       return true;
+        return true;
     }
     @Override
     public boolean isAccountNonLocked() {
-       return true;
+        return true;
     }
     @Override
     public boolean isCredentialsNonExpired() {

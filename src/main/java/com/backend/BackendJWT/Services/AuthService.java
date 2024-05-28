@@ -2,6 +2,7 @@ package com.backend.BackendJWT.Services;
 
 import com.backend.BackendJWT.Models.Auth.*;
 import com.backend.BackendJWT.Config.Jwt.JwtService;
+import com.backend.BackendJWT.Repositories.Auth.MedidorRepository;
 import com.backend.BackendJWT.Repositories.Auth.RoleRepository;
 import com.backend.BackendJWT.Repositories.Auth.ClienteRepository;
 
@@ -29,6 +30,48 @@ public class AuthService {
 
     @Autowired
     private RoleRepository roleRepository;
+    private MedidorRepository medidorRepository;
+
+    public AuthResponse registerConsumo(RegisterConsumoRequest request){
+            return null;
+    }
+    public AuthResponse registerMedidor(RegisterMedidorRequest request, String token) {
+        try {
+            // Extraer el ID del cliente del token
+            System.out.println("entra al service");
+            String cleanedToken = token.replace("Bearer ", "");
+            System.out.println(cleanedToken);
+
+            Long clienteId = jwtService.getClaim(cleanedToken, claims -> claims.get("id_cliente", Long.class));
+            System.out.println(clienteId);
+
+            Cliente cliente = clienteRepository.findById(clienteId)
+                    .orElseThrow(() -> new IllegalArgumentException("Cliente no encontrado"));
+            System.out.println(cliente);
+
+            Medidor medidor = Medidor.builder()
+                    .nombre(request.getNombre())
+                    .numcliente(request.getNumcliente())
+                    .build();
+
+            System.out.println(medidor);
+
+            medidorRepository.save(medidor);
+
+            return AuthResponse.builder()
+                    .success(true)
+                    .token("Medidor registrado exitosamente")
+                    .build();
+
+        } catch (Exception e) {
+            System.out.println("cae en catch");
+            return AuthResponse.builder()
+                    .success(false)
+                    .token("Error al registrar el medidor: " + e.getMessage())
+                    .build();
+        }
+    }
+
 
     public AuthResponse login(LoginRequest request) {
         try {

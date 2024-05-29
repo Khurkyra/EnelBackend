@@ -11,4 +11,6 @@ import java.util.Optional;
 @Repository
 public interface ConsumoRepository extends JpaRepository<Consumo, Long> {
     // Métodos de consulta personalizados si es necesario
+    boolean existsByMedidor(Medidor medidor);
+
 }

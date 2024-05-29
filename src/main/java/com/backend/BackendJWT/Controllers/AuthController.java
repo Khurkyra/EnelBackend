@@ -57,6 +57,18 @@ public class AuthController {
         return ResponseEntity.ok(cliente);
     }
 
+    @PatchMapping("/user/profile/update")
+    public ResponseEntity<Cliente> updateUserProfile(@RequestHeader("Authorization") String token, @RequestBody UpdateClienteRequest updateClienteRequest) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+        String rut = jwtService.getUserIdFromToken(token);
+        Cliente updatedCliente = clienteService.actualizarClienteParcial(rut, updateClienteRequest);
+        return ResponseEntity.ok(updatedCliente);
+    }
+
     @PostMapping("/user/medidores")
     public ResponseEntity<?> registrarMedidor(@RequestBody Medidor medidor, @RequestHeader("Authorization") String token) {
         if (token.startsWith("Bearer ")) {
@@ -85,4 +97,46 @@ public class AuthController {
         AuthResponse nuevoConsumo = clienteService.registrarConsumo(medidorId, consumo);
         return ResponseEntity.status(HttpStatus.CREATED).body(nuevoConsumo);
     }
+
+    @DeleteMapping("/user/medidores/{medidorId}")
+    public ResponseEntity<?> eliminarMedidor(@PathVariable Long medidorId, @RequestHeader("Authorization") String token) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid token format");
+        }
+
+        String rut = jwtService.getUserIdFromToken(token);
+        Cliente cliente = clienteService.getClienteByRut(rut);
+
+        // Verificar si el medidor pertenece al cliente y si puede ser eliminado
+        boolean eliminado = clienteService.eliminarMedidor(medidorId);
+
+        if (eliminado) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Medidor eliminado con éxito");
+        } else {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("No se puede eliminar el medidor porque tiene registros de consumo");
+        }
+    }
+    @DeleteMapping("/user")
+    public ResponseEntity<?> eliminarUsuario(@RequestHeader("Authorization") String token) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid token format");
+        }
+
+        String rut = jwtService.getUserIdFromToken(token);
+
+        boolean eliminado = clienteService.eliminarUsuario(rut);
+
+        if (eliminado) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Usuario eliminado con éxito");
+        } else {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("No se puede eliminar el usuario");
+        }
+    }
+
+
+
 }

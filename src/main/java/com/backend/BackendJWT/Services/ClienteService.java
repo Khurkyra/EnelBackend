@@ -1,9 +1,6 @@
 package com.backend.BackendJWT.Services;
 
-import com.backend.BackendJWT.Models.Auth.AuthResponse;
-import com.backend.BackendJWT.Models.Auth.Cliente;
-import com.backend.BackendJWT.Models.Auth.Consumo;
-import com.backend.BackendJWT.Models.Auth.Medidor;
+import com.backend.BackendJWT.Models.Auth.*;
 import com.backend.BackendJWT.Repositories.Auth.ClienteRepository;
 import com.backend.BackendJWT.Repositories.Auth.ConsumoRepository;
 import com.backend.BackendJWT.Repositories.Auth.MedidorRepository;
@@ -42,4 +39,40 @@ public class ClienteService {
         consumoRepository.save(consumo);
         return new AuthResponse(true, "Consumo registrado con exito");
     }
+
+
+    public Cliente actualizarClienteParcial(String rut, UpdateClienteRequest updateClienteRequest) {
+        Cliente cliente = getClienteByRut(rut);
+
+        if (updateClienteRequest.getPassword()!= null) {
+            cliente.setFirstname(updateClienteRequest.getPassword());
+        }
+        if (updateClienteRequest.getEmail() != null) {
+            cliente.setLastname(updateClienteRequest.getEmail());
+        }
+        if (updateClienteRequest.getPhoneNumber() != null) {
+            cliente.setPhoneNumber(updateClienteRequest.getPhoneNumber());
+        }
+        return clienteRepository.save(cliente);
+    }
+
+    public boolean eliminarMedidor(Long medidorId) {
+        Medidor medidor = medidorRepository.findById(medidorId)
+                .orElseThrow(() -> new RuntimeException("Medidor not found"));
+
+        if (consumoRepository.existsByMedidor(medidor)) {
+            return false; // No se puede eliminar el medidor porque tiene registros de consumo
+        }
+
+        medidorRepository.delete(medidor);
+        return true; // Medidor eliminado con éxito
+    }
+
+    public boolean eliminarUsuario(String rut) {
+        Cliente cliente = getClienteByRut(rut);
+
+        clienteRepository.delete(cliente);
+        return true; // Usuario eliminado con éxito
+    }
+
 }

@@ -72,4 +72,17 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
 
     }
+
+    @PostMapping("/user/medidores/{medidorId}/consumos")
+    public ResponseEntity<?> registrarConsumo(@PathVariable Long medidorId, @RequestBody Consumo consumo, @RequestHeader("Authorization") String token) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+        }
+
+        // Puedes verificar aquí si el token es válido y si el medidor pertenece al cliente
+        AuthResponse nuevoConsumo = clienteService.registrarConsumo(medidorId, consumo);
+        return ResponseEntity.status(HttpStatus.CREATED).body(nuevoConsumo);
+    }
 }

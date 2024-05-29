@@ -1,6 +1,7 @@
 package com.backend.BackendJWT.Models.Auth;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,9 +25,19 @@ public class Medidor{
     private Long id;
 
     @NotNull
-    @Size(min = 7, max = 20)
+    @Size(min = 4, max = 20)
     @Column(nullable = false, length = 30)
-    private String nombre;
+    private String region;
+
+    @NotNull
+    @Size(min = 4, max = 20)
+    @Column(nullable = false, length = 30)
+    private String comuna;
+
+    @NotNull
+    @Size(min = 7, max = 30)
+    @Column(nullable = false, length = 30)
+    private String direccion;
 
     @NotNull
     @Size(min = 7, max = 20)
@@ -39,7 +50,8 @@ public class Medidor{
     @JsonBackReference
     private Cliente cliente;  // Relación con la entidad Cliente
 
-    @OneToMany(mappedBy = "medidor", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "medidor")
+    @JsonManagedReference
     private List<Consumo> consumos;  // Relación con la entidad Consumo
 
 }

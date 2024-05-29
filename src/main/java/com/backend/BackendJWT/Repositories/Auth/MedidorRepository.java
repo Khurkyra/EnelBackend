@@ -10,6 +10,4 @@ import java.util.Optional;
 @Repository
 public interface MedidorRepository extends JpaRepository<Medidor, Long> {
     // Métodos de consulta personalizados si es necesario
-    Optional<Medidor> findByNombre(String nombre);
-
 }

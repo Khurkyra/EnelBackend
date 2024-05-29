@@ -1,5 +1,6 @@
 package com.backend.BackendJWT.Models.Auth;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -22,10 +23,11 @@ public class Consumo {
 
     @NotNull
     @Column(nullable = false)
-    private Double lectura;
+    private String lectura;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(nullable = false, name = "medidor_id")
     @NotNull
+    @JsonBackReference
     private Medidor medidor;  // Relación con la entidad Medidor
 }

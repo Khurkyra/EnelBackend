@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RegisterMedidorRequest {
-    private String nombre;
+    private String region;
+    private String comuna;
+    private String direccion;
     private String numcliente;
 }

@@ -50,7 +50,9 @@ public class AuthService {
             System.out.println(cliente);
 
             Medidor medidor = Medidor.builder()
-                    .nombre(request.getNombre())
+                    .region(request.getRegion())
+                    .region(request.getComuna())
+                    .region(request.getDireccion())
                     .numcliente(request.getNumcliente())
                     .build();
 

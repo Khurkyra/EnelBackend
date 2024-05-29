@@ -1,6 +1,7 @@
 package com.backend.BackendJWT.Services;
 
 import com.backend.BackendJWT.Models.Auth.*;
+import com.backend.BackendJWT.Models.DTO.UpdateClienteRequest;
 import com.backend.BackendJWT.Repositories.Auth.ClienteRepository;
 import com.backend.BackendJWT.Repositories.Auth.ConsumoRepository;
 import com.backend.BackendJWT.Repositories.Auth.MedidorRepository;
@@ -23,22 +24,23 @@ public class ClienteService {
     @Autowired
     private MedidorRepository medidorRepository;
 
-    public AuthResponse registrarMedidor(Medidor medidor, Cliente cliente) {
+    public Cliente registrarMedidor(Medidor medidor, Cliente cliente) {
         medidor.setCliente(cliente);
         medidorRepository.save(medidor);
-        return new AuthResponse(true, "Medidor registrado con exito");
+        return getClienteByRut(cliente.getRut()); // Devolver el cliente actualizado
     }
 
     @Autowired
     private ConsumoRepository consumoRepository;
 
-    public AuthResponse registrarConsumo(Long medidorId, Consumo consumo) {
+    public Cliente registrarConsumo(Long medidorId, Consumo consumo) {
         Medidor medidor = medidorRepository.findById(medidorId)
                 .orElseThrow(() -> new RuntimeException("Medidor not found"));
         consumo.setMedidor(medidor);
         consumoRepository.save(consumo);
-        return new AuthResponse(true, "Consumo registrado con exito");
+        return getClienteByRut(medidor.getCliente().getRut()); // Devolver el cliente actualizado
     }
+
 
 
     public Cliente actualizarClienteParcial(String rut, UpdateClienteRequest updateClienteRequest) {
@@ -66,6 +68,13 @@ public class ClienteService {
 
         medidorRepository.delete(medidor);
         return true; // Medidor eliminado con éxito
+    }
+    public Cliente eliminarMedidorYObtenerClienteActualizado(Long medidorId, String rut) {
+        boolean eliminado = eliminarMedidor(medidorId);
+        if (eliminado) {
+            return getClienteByRut(rut); // Devolver el cliente actualizado si el medidor fue eliminado
+        }
+        throw new RuntimeException("No se puede eliminar el medidor porque tiene registros de consumo");
     }
 
     public boolean eliminarUsuario(String rut) {

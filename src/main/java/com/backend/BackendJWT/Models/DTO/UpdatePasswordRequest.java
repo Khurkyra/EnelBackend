@@ -1,4 +1,4 @@
-package com.backend.BackendJWT.Models.Auth;
+package com.backend.BackendJWT.Models.DTO;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,14 +7,9 @@ import lombok.NoArgsConstructor;
 
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-public class UpdateClienteRequest {
-
-    private String password;
-
+@AllArgsConstructor
+public class UpdatePasswordRequest {
     private String email;
-
-    private String phoneNumber;
-
+    private String newPassword;
 }

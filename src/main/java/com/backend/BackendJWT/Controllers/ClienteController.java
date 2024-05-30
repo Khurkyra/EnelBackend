@@ -22,12 +22,12 @@ public class ClienteController {
 
     //datos del cliente
     @GetMapping("/user/profile")
-    public ResponseEntity<Cliente> getUserProfile(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> getUserProfile(@RequestHeader("Authorization") String token) {
         // Extraer el token del encabezado "Bearer "
         if (token.startsWith("Bearer ")) {
             token = token.substring(7);
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El token no es válido");
         }
         String rut = jwtService.getUserIdFromToken(token);
         Cliente cliente = clienteService.getClienteByRut(rut);
@@ -37,11 +37,11 @@ public class ClienteController {
 
     //actualizar cliente
     @PatchMapping("/profile/update")
-    public ResponseEntity<Cliente> updateUserProfile(@RequestHeader("Authorization") String token, @RequestBody UpdateClienteRequest updateClienteRequest) {
+    public ResponseEntity<?> updateUserProfile(@RequestHeader("Authorization") String token, @RequestBody UpdateClienteRequest updateClienteRequest) {
         if (token.startsWith("Bearer ")) {
             token = token.substring(7);
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El token no es valido");
         }
         String rut = jwtService.getUserIdFromToken(token);
         Cliente updatedCliente = clienteService.actualizarClienteParcial(rut, updateClienteRequest);
@@ -51,11 +51,11 @@ public class ClienteController {
 
     //crear medidor
     @PostMapping("/medidores")
-    public ResponseEntity<Cliente> registrarMedidor(@RequestBody Medidor medidor, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> registrarMedidor(@RequestBody Medidor medidor, @RequestHeader("Authorization") String token) {
         if (token.startsWith("Bearer ")) {
             token = token.substring(7);
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El token no es valido");
         }
 
         String rut = jwtService.getUserIdFromToken(token);
@@ -69,11 +69,11 @@ public class ClienteController {
 
     //crear consumo de medidor
     @PostMapping("/medidores/{medidorId}/consumos")
-    public ResponseEntity<Cliente> registrarConsumo(@PathVariable Long medidorId, @RequestBody Consumo consumo, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> registrarConsumo(@PathVariable Long medidorId, @RequestBody Consumo consumo, @RequestHeader("Authorization") String token) {
         if (token.startsWith("Bearer ")) {
             token = token.substring(7);
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El token no es valido");
         }
 
         Cliente updatedCliente = clienteService.registrarConsumo(medidorId, consumo); // Obtener los datos actualizados del cliente
@@ -83,11 +83,11 @@ public class ClienteController {
 
     //borrar medidor
     @DeleteMapping("/medidores/{medidorId}")
-    public ResponseEntity<Cliente> eliminarMedidor(@PathVariable Long medidorId, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> eliminarMedidor(@PathVariable Long medidorId, @RequestHeader("Authorization") String token) {
         if (token.startsWith("Bearer ")) {
             token = token.substring(7);
         } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El token no es valido");
         }
 
         String rut = jwtService.getUserIdFromToken(token);
@@ -96,7 +96,7 @@ public class ClienteController {
             Cliente updatedCliente = clienteService.eliminarMedidorYObtenerClienteActualizado(medidorId, rut); // Obtener los datos actualizados del cliente
             return ResponseEntity.ok(updatedCliente);
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body(null);
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("No se puede eliminar el medidor ya que posee registros de consumo asociados");
         }
     }
 

@@ -78,6 +78,7 @@ public class AuthService {
 
 
     public AuthResponse login(LoginRequest request) {
+        System.out.println(passwordEncoder.encode(request.getPassword()));
         try {
             // Intenta autenticar al usuario usando el RUT y la contraseña
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getRut(), request.getPassword()));
@@ -94,6 +95,7 @@ public class AuthService {
                     .success(true)
                     .token(token)
                     .build();
+
         } catch (AuthenticationException e) {
             // Manejo de errores de autenticación
             return AuthResponse.builder()

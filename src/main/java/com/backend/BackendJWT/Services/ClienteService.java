@@ -54,13 +54,13 @@ public class ClienteService {
         Cliente cliente = clienteRepository.getClienteByRut(rut);
         System.out.println("cliente: "+ cliente.toString());
 
-        if (updateClienteRequest.getPassword()!= null) {
+        if (updateClienteRequest.getPassword() != null && !updateClienteRequest.getPassword().isEmpty() && !updateClienteRequest.getPassword().trim().isEmpty()) {
             cliente.setPassword(passwordEncoder.encode(updateClienteRequest.getPassword()));
         }
-        if (updateClienteRequest.getEmail() != null) {
+        if (updateClienteRequest.getEmail() != null && !updateClienteRequest.getEmail().isEmpty() && !updateClienteRequest.getEmail().trim().isEmpty()) {
             cliente.setEmail(updateClienteRequest.getEmail());
         }
-        if (updateClienteRequest.getPhoneNumber() != null) {
+        if (updateClienteRequest.getPhoneNumber() != null && !updateClienteRequest.getPhoneNumber().isEmpty() && !updateClienteRequest.getPhoneNumber().trim().isEmpty()) {
             cliente.setPhoneNumber(updateClienteRequest.getPhoneNumber());
         }
         return clienteRepository.save(cliente);

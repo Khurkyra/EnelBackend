@@ -62,7 +62,7 @@ public class ClienteController {
         Cliente cliente = clienteService.getClienteByRut(rut);
 
         Cliente updatedCliente = clienteService.registrarMedidor(medidor, cliente); // Obtener los datos actualizados del cliente
-        return ResponseEntity.status(HttpStatus.CREATED).body(updatedCliente);
+        return ResponseEntity.ok(updatedCliente);
     }
 
 

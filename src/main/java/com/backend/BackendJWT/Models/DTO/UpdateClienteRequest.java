@@ -10,11 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UpdateClienteRequest {
-
     private String password;
-
     private String email;
-
     private String phoneNumber;
-
 }

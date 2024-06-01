@@ -31,9 +31,6 @@ public class Cliente implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull(message="rut cannot be null")
-    @NotEmpty(message="rut cannot be empty")
-    @NotBlank(message = "Name is mandatory")
     @Size(min = 7, max = 20)
     @Column(nullable = false, length = 30)
     private String rut;
@@ -100,5 +97,20 @@ public class Cliente implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "Cliente{" +
+                "id=" + id +
+                ", firstname='" + firstname + '\'' +
+                ", lastname='" + lastname + '\'' +
+                ", rut='" + rut + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", role=" + role +
+                ", medidores=" + (medidores != null ? medidores.size() + " medidores" : "0 medidores") +
+                '}';
     }
 }

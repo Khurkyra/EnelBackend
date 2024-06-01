@@ -20,4 +20,12 @@ public class Role {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 30)
     private ERole roleName;  // Use ERole instead of an inner enum
+
+    @Override
+    public String toString() {
+        return "Role{" +
+                "id=" + id +
+                ", roleName='" + roleName + '\'' +
+                '}';
+    }
 }

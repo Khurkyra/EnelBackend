@@ -54,4 +54,15 @@ public class Medidor{
     @JsonManagedReference
     private List<Consumo> consumos;  // Relación con la entidad Consumo
 
+    @Override
+    public String toString() {
+        return "Medidor{" +
+                "id=" + id +
+                ", region='" + region + '\'' +
+                ", comuna='" + comuna + '\'' +
+                ", direccion='" + direccion + '\'' +
+                ", numcliente='" + numcliente + '\'' +
+                ", consumos=" + (consumos != null ? consumos.size() + " consumos" : "0 consumos") +
+                '}';
+    }
 }

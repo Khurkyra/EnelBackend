@@ -30,4 +30,13 @@ public class Consumo {
     @NotNull
     @JsonBackReference
     private Medidor medidor;  // Relación con la entidad Medidor
+
+    @Override
+    public String toString() {
+        return "Consumo{" +
+                "id=" + id +
+                ", lectura='" + lectura + '\'' +
+                '}';
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.backend.BackendJWT.Services;
 
+import com.backend.BackendJWT.Config.Jwt.JwtService;
 import com.backend.BackendJWT.Models.Auth.*;
 import com.backend.BackendJWT.Models.DTO.UpdateClienteRequest;
 import com.backend.BackendJWT.Repositories.Auth.ClienteRepository;
@@ -7,13 +8,19 @@ import com.backend.BackendJWT.Repositories.Auth.ConsumoRepository;
 import com.backend.BackendJWT.Repositories.Auth.MedidorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class ClienteService {
     @Autowired
     private ClienteRepository clienteRepository;
+    private final JwtService jwtService;
+    private final PasswordEncoder passwordEncoder;
+
 
     public Cliente getClienteByRut(String rut) {
         System.out.println("cliente rut: "+rut);
@@ -44,13 +51,14 @@ public class ClienteService {
 
 
     public Cliente actualizarClienteParcial(String rut, UpdateClienteRequest updateClienteRequest) {
-        Cliente cliente = getClienteByRut(rut);
+        Cliente cliente = clienteRepository.getClienteByRut(rut);
+        System.out.println("cliente: "+ cliente.toString());
 
         if (updateClienteRequest.getPassword()!= null) {
-            cliente.setFirstname(updateClienteRequest.getPassword());
+            cliente.setPassword(passwordEncoder.encode(updateClienteRequest.getPassword()));
         }
         if (updateClienteRequest.getEmail() != null) {
-            cliente.setLastname(updateClienteRequest.getEmail());
+            cliente.setEmail(updateClienteRequest.getEmail());
         }
         if (updateClienteRequest.getPhoneNumber() != null) {
             cliente.setPhoneNumber(updateClienteRequest.getPhoneNumber());

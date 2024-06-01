@@ -9,6 +9,8 @@ import com.backend.BackendJWT.Repositories.Auth.ClienteRepository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
@@ -108,6 +110,7 @@ public class AuthService {
     }
 
     public AuthResponse register(RegisterRequest request) {
+
         try {
             if (clienteRepository.existsByRut(request.getRut())) {
                 throw new UsernameAlreadyExistsException("Rut '" + request.getRut() + "' is already registered");
@@ -117,27 +120,28 @@ public class AuthService {
                 throw new EmailAlreadyExistsException("Email '" + request.getEmail() + "' is already associated with an account");
             }
 
-            // Fetch the default role
-            Role defaultRole = roleRepository.findByRoleName(ERole.USER)
-                    .orElseThrow(() -> new RuntimeException("Default role not found"));
+                // Fetch the default role
+                Role defaultRole = roleRepository.findByRoleName(ERole.USER)
+                        .orElseThrow(() -> new RuntimeException("Default role not found"));
 
-            Cliente cliente = Cliente.builder()
-                    .rut(request.getRut())
-                    .password(passwordEncoder.encode(request.getPassword()))
-                    .firstname(request.getFirstname())
-                    .lastname(request.getLastname())
-                    .email(request.getEmail())
-                    .phoneNumber(request.getPhoneNumber())
-                    .role(defaultRole)  // Set the fetched role
-                    .build();
+                Cliente cliente = Cliente.builder()
+                        .rut(request.getRut())
+                        .password(passwordEncoder.encode(request.getPassword()))
+                        .firstname(request.getFirstname())
+                        .lastname(request.getLastname())
+                        .email(request.getEmail())
+                        .phoneNumber(request.getPhoneNumber())
+                        .role(defaultRole)  // Set the fetched role
+                        .build();
 
-            clienteRepository.save(cliente);  // Persist the new user with the role in the database.
+                clienteRepository.save(cliente);  // Persist the new user with the role in the database.
 
-            // Generate token and return response
-            return AuthResponse.builder()
-                    .success(true)
-                    .token(jwtService.getToken(cliente))
-                    .build();
+                // Generate token and return response
+                return AuthResponse.builder()
+                        .success(true)
+                        .token(jwtService.getToken(cliente))
+                        .build();
+
         } catch (UsernameAlreadyExistsException | EmailAlreadyExistsException e) {
             // Maneja excepciones específicas relacionadas con el registro de usuario
             throw new Error("Ha ocurrido un error "+e);

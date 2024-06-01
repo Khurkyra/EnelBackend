@@ -2,12 +2,16 @@ package com.backend.BackendJWT.Services;
 
 import com.backend.BackendJWT.Config.Jwt.JwtService;
 import com.backend.BackendJWT.Models.Auth.*;
+import com.backend.BackendJWT.Models.DTO.AuthResponse;
 import com.backend.BackendJWT.Models.DTO.UpdateClienteRequest;
 import com.backend.BackendJWT.Repositories.Auth.ClienteRepository;
 import com.backend.BackendJWT.Repositories.Auth.ConsumoRepository;
 import com.backend.BackendJWT.Repositories.Auth.MedidorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -31,10 +35,29 @@ public class ClienteService {
     @Autowired
     private MedidorRepository medidorRepository;
 
-    public Cliente registrarMedidor(Medidor medidor, Cliente cliente) {
-        medidor.setCliente(cliente);
-        medidorRepository.save(medidor);
-        return getClienteByRut(cliente.getRut()); // Devolver el cliente actualizado
+    public ResponseEntity<?> registrarMedidor(Medidor medidor, Cliente cliente) {
+        try {
+            if (medidor.getComuna() == null || medidor.getComuna().isEmpty() || medidor.getComuna().trim().isEmpty()) {
+                throw new IllegalArgumentException("la comuna es obligatoria");
+            }
+            if (medidor.getRegion() == null || medidor.getRegion().isEmpty() || medidor.getRegion().trim().isEmpty()) {
+                throw new IllegalArgumentException("la region es obligatoria");
+            }
+            if (medidor.getDireccion() == null || medidor.getDireccion().isEmpty() || medidor.getDireccion().trim().isEmpty()) {
+                throw new IllegalArgumentException("la direccion es obligatoria");
+            }
+            if (medidor.getNumcliente() == null || medidor.getNumcliente().isEmpty() || medidor.getNumcliente().trim().isEmpty()) {
+                throw new IllegalArgumentException("el numero de cliente es obligatorio");
+            }
+            medidor.setCliente(cliente);
+            medidorRepository.save(medidor);
+            return ResponseEntity.ok(cliente.getRut()); // Devolver el cliente actualizado
+
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error interno del servidor: " + e.getMessage());
+        }
     }
 
     @Autowired

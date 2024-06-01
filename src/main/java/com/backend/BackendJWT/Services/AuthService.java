@@ -85,7 +85,8 @@ public class AuthService {
 
             // Busca el usuario en el repositorio usando el RUT
             UserDetails user = clienteRepository.findByRut(request.getRut())
-                    .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado"));
+                    .orElseThrow(() -> new AuthenticationException("Usuario no encontrado") {
+                    });
 
             // Genera el token JWT para el usuario
             String token = jwtService.getToken(user);
@@ -102,6 +103,7 @@ public class AuthService {
                     .success(false)
                     .token("Error de autenticación: " + e.getMessage())
                     .build();
+
         } catch (Exception e) {
             // Manejo de otros errores inesperados
             return AuthResponse.builder()
@@ -121,6 +123,7 @@ public class AuthService {
             if (clienteRepository.existsByEmail(request.getEmail())) {
                 throw new EmailAlreadyExistsException("Email '" + request.getEmail() + "' is already associated with an account");
             }
+
 
                 // Fetch the default role
                 Role defaultRole = roleRepository.findByRoleName(ERole.USER)

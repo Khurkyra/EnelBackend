@@ -61,8 +61,8 @@ public class ClienteController {
         String rut = jwtService.getUserIdFromToken(token);
         Cliente cliente = clienteService.getClienteByRut(rut);
 
-        Cliente updatedCliente = clienteService.registrarMedidor(medidor, cliente); // Obtener los datos actualizados del cliente
-        return ResponseEntity.ok(updatedCliente);
+        return ResponseEntity.ok(clienteService.registrarMedidor(medidor, cliente));
+
     }
 
 

@@ -7,10 +7,10 @@ import com.backend.BackendJWT.Repositories.Auth.MedidorRepository;
 import com.backend.BackendJWT.Repositories.Auth.RoleRepository;
 import com.backend.BackendJWT.Repositories.Auth.ClienteRepository;
 
+import com.backend.BackendJWT.Validaciones.RutValidation;
+import com.backend.BackendJWT.Validaciones.ValidacionPorCampo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
@@ -32,54 +32,31 @@ public class AuthService {
 
     @Autowired
     private RoleRepository roleRepository;
-    private MedidorRepository medidorRepository;
-
-    public AuthResponse registerConsumo(RegisterConsumoRequest request){
-            return null;
-    }
-    public AuthResponse registerMedidor(RegisterMedidorRequest request, String token) {
-        try {
-            // Extraer el ID del cliente del token
-            System.out.println("entra al service");
-            String cleanedToken = token.replace("Bearer ", "");
-            System.out.println(cleanedToken);
-
-            Long clienteId = jwtService.getClaim(cleanedToken, claims -> claims.get("id_cliente", Long.class));
-            System.out.println(clienteId);
-
-            Cliente cliente = clienteRepository.findById(clienteId)
-                    .orElseThrow(() -> new IllegalArgumentException("Cliente no encontrado"));
-            System.out.println(cliente);
-
-            Medidor medidor = Medidor.builder()
-                    .region(request.getRegion())
-                    .region(request.getComuna())
-                    .region(request.getDireccion())
-                    .numcliente(request.getNumcliente())
-                    .build();
-
-            System.out.println(medidor);
-
-            medidorRepository.save(medidor);
-
-            return AuthResponse.builder()
-                    .success(true)
-                    .token("Medidor registrado exitosamente")
-                    .build();
-
-        } catch (Exception e) {
-            System.out.println("cae en catch");
-            return AuthResponse.builder()
-                    .success(false)
-                    .token("Error al registrar el medidor: " + e.getMessage())
-                    .build();
-        }
-    }
-
 
     public AuthResponse login(LoginRequest request) {
-        System.out.println(passwordEncoder.encode(request.getPassword()));
         try {
+            if (request.getRut() == null || request.getRut().isEmpty() || request.getRut().trim().isEmpty()){
+                return AuthResponse.builder()
+                        .success(false)
+                        .token("El campo rut no puede ser vacio")
+                        .build();
+            }
+            // Validar el RUT usando validacionModule11
+            ValidationResponse rutValidation = RutValidation.validacionModule11(request.getRut());
+
+            if (!rutValidation.isSuccess()) {
+                return AuthResponse.builder()
+                        .success(false)
+                        .token(""+rutValidation.getMessage())
+                        .build();
+            }
+            if (request.getPassword() == null || request.getPassword().isEmpty() || request.getPassword().trim().isEmpty()) {
+                return AuthResponse.builder()
+                        .success(false)
+                        .token("El campo password no puede ser vacio")
+                        .build();
+            }
+
             // Intenta autenticar al usuario usando el RUT y la contraseña
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getRut(), request.getPassword()));
 
@@ -97,37 +74,44 @@ public class AuthService {
                     .token(token)
                     .build();
 
-        } catch (AuthenticationException e) {
-            // Manejo de errores de autenticación
-            return AuthResponse.builder()
-                    .success(false)
-                    .token("Error de autenticación: " + e.getMessage())
-                    .build();
 
         } catch (Exception e) {
-            // Manejo de otros errores inesperados
             return AuthResponse.builder()
                     .success(false)
-                    .token("Error interno del servidor: " + e.getMessage())
+                    .token("Hubo un problema en el servidor")
                     .build();
         }
     }
+
+
+
 
     public AuthResponse register(RegisterRequest request) {
 
         try {
             if (clienteRepository.existsByRut(request.getRut())) {
-                throw new UsernameAlreadyExistsException("Rut '" + request.getRut() + "' is already registered");
+                return AuthResponse.builder()
+                        .success(false)
+                        .token("El rut ya esta registrado en la base de datos")
+                        .build();
             }
-
             if (clienteRepository.existsByEmail(request.getEmail())) {
-                throw new EmailAlreadyExistsException("Email '" + request.getEmail() + "' is already associated with an account");
+                return AuthResponse.builder()
+                        .success(false)
+                        .token("El email ya existe en la base de datos")
+                        .build();
             }
-
-
+            // Validar el RUT usando validacionModule11
+            ValidationResponse validacionPorCampo = ValidacionPorCampo.validacionPorCampo(request);
+            if (!validacionPorCampo.isSuccess()) {
+                return AuthResponse.builder()
+                        .success(false)
+                        .token(""+validacionPorCampo.getMessage())
+                        .build();
+            }
                 // Fetch the default role
                 Role defaultRole = roleRepository.findByRoleName(ERole.USER)
-                        .orElseThrow(() -> new RuntimeException("Default role not found"));
+                        .orElseThrow(() -> new Exception("Default role not found"));
 
                 Cliente cliente = Cliente.builder()
                         .rut(request.getRut())
@@ -147,17 +131,17 @@ public class AuthService {
                         .token(jwtService.getToken(cliente))
                         .build();
 
-        } catch (UsernameAlreadyExistsException | EmailAlreadyExistsException e) {
-            // Maneja excepciones específicas relacionadas con el registro de usuario
-            throw new Error("Ha ocurrido un error "+e);
-        } catch (RuntimeException e) {
-            // Maneja cualquier otra excepción de tiempo de ejecución
-            throw new RuntimeException("Error al registrar el usuario: " + e.getMessage(), e);
         } catch (Exception e) {
             // Maneja cualquier otra excepción
-            throw new RuntimeException("Se produjo un error inesperado durante el registro: " + e.getMessage(), e);
+            return AuthResponse.builder()
+                    .success(false)
+                    .token("Hubo un error al registrar el usuario")
+                    .build();
         }
     }
+
+
+
 
     public AuthResponse getUser(SearchUserRequest request) {
         try {

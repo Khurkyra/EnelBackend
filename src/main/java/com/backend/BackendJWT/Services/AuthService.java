@@ -35,21 +35,22 @@ public class AuthService {
 
     public AuthResponse login(LoginRequest request) {
         try {
+            // Validar el RUT usando validacionModule11
             if (request.getRut() == null || request.getRut().isEmpty() || request.getRut().trim().isEmpty()){
                 return AuthResponse.builder()
                         .success(false)
                         .token("El campo rut es obligatorio y no puede ser vacio")
                         .build();
             }
-            // Validar el RUT usando validacionModule11
             ValidationResponse rutValidation = RutValidation.validacionModule11(request.getRut());
-
             if (!rutValidation.isSuccess()) {
                 return AuthResponse.builder()
                         .success(false)
                         .token(""+rutValidation.getMessage())
                         .build();
             }
+
+            //Valida Password
             if (request.getPassword() == null || request.getPassword().isEmpty() || request.getPassword().trim().isEmpty()) {
                 return AuthResponse.builder()
                         .success(false)
@@ -57,30 +58,27 @@ public class AuthService {
                         .build();
             }
 
-            // Intenta autenticar al usuario usando el RUT y la contraseña
+            //Intenta autenticar al usuario usando el RUT y la contraseña
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getRut(), request.getPassword()));
-
-            // Busca el usuario en el repositorio usando el RUT
+            //Busca el usuario en el repositorio usando el RUT
             UserDetails user = clienteRepository.findByRut(request.getRut())
                     .orElseThrow(() -> new AuthenticationException("Usuario no encontrado") {
                     });
-
-            // Genera el token JWT para el usuario
+            //Genera el token JWT para el usuario
             String token = jwtService.getToken(user);
-
-            // Retorna la respuesta con el token
+            //Retorna la respuesta con el token
             return AuthResponse.builder()
                     .success(true)
                     .token(token)
                     .build();
-
-
-        } catch (AuthenticationException e) {
+        }
+        catch (AuthenticationException e){
             return AuthResponse.builder()
                     .success(false)
                     .token("El rut ingresado no existe en la base de datos")
                     .build();
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
         return AuthResponse.builder()
                 .success(false)
                 .token("Hubo un error al intentar ingresar al home")
@@ -89,11 +87,9 @@ public class AuthService {
     }
 
 
-
-
     public AuthResponse register(RegisterRequest request) {
-
         try {
+
             if (clienteRepository.existsByRut(request.getRut())) {
                 return AuthResponse.builder()
                         .success(false)
@@ -136,7 +132,8 @@ public class AuthService {
                         .token(jwtService.getToken(cliente))
                         .build();
 
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             // Maneja cualquier otra excepción
             return AuthResponse.builder()
                     .success(false)

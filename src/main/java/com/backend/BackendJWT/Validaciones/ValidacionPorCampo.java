@@ -41,7 +41,7 @@ public class ValidacionPorCampo {
         return new ValidationResponse(true, "Todos los campos son válidos");
     }
 
-    private static boolean isValidNombreOrApellido(String text) {
+    public static boolean isValidNombreOrApellido(String text) {
         if (text == null || text.isEmpty() || text.trim().isEmpty()) {
             return false;
         }
@@ -54,7 +54,7 @@ public class ValidacionPorCampo {
         }
     }
 
-    private static boolean isValidEmail(String email) {
+    public static boolean isValidEmail(String email) {
         if (email == null || email.isEmpty() || email.trim().isEmpty()) {
             return false;
         }
@@ -67,7 +67,7 @@ public class ValidacionPorCampo {
         }
     }
 
-    private static boolean isValidPhoneNumber(String phone) {
+    public static boolean isValidPhoneNumber(String phone) {
         if (phone == null || phone.isEmpty() || phone.trim().isEmpty()) {
             return false;
         }

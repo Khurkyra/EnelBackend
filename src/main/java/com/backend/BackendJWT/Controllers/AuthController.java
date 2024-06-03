@@ -4,6 +4,7 @@ import com.backend.BackendJWT.Config.Jwt.JwtService;
 import com.backend.BackendJWT.Models.DTO.*;
 import com.backend.BackendJWT.Services.AuthService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -38,11 +39,10 @@ public class AuthController {
     public ResponseEntity<AuthResponse>searchUser(@RequestBody SearchUserRequest request){
         return ResponseEntity.ok(authService.getUser(request));
     }
+
     //si existe y codigos coinciden, se envia nueva contraseña a este endpoint para su actualizacion
     @PutMapping("/update-password")
-    public ResponseEntity<AuthResponse> updatePassword(@RequestBody UpdatePasswordRequest request) {
+    public ResponseEntity<?> updatePassword(@RequestBody UpdatePasswordRequest request ) {
         return ResponseEntity.ok(authService.updatePassword(request));
     }
-
-
 }

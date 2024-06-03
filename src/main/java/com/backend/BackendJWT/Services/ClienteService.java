@@ -4,9 +4,11 @@ import com.backend.BackendJWT.Config.Jwt.JwtService;
 import com.backend.BackendJWT.Models.Auth.*;
 import com.backend.BackendJWT.Models.DTO.AuthResponse;
 import com.backend.BackendJWT.Models.DTO.UpdateClienteRequest;
+import com.backend.BackendJWT.Models.DTO.UpdatePasswordRequest;
 import com.backend.BackendJWT.Repositories.Auth.ClienteRepository;
 import com.backend.BackendJWT.Repositories.Auth.ConsumoRepository;
 import com.backend.BackendJWT.Repositories.Auth.MedidorRepository;
+import com.backend.BackendJWT.Validaciones.StringValidation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,7 +26,6 @@ public class ClienteService {
     private ClienteRepository clienteRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
-
 
     public Cliente getClienteByRut(String rut) {
         System.out.println("cliente rut: "+rut);

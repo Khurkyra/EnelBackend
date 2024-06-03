@@ -23,7 +23,7 @@ public class StringValidation {
         }
     }
     public static Boolean validatePassword(String password) {
-        Pattern pattern = Pattern.compile("^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$");
+        Pattern pattern = Pattern.compile("^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,15}$");
         Matcher matcher = pattern.matcher(password);
         if(matcher.matches()) {
             return true;

@@ -31,35 +31,35 @@ public class Cliente implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Size(min = 7, max = 20)
-    @Column(nullable = false, length = 30)
+    @Size(min = 7, max = 10)
+    @Column(nullable = false, length = 10)
     private String rut;
 
     @NotNull
-    @Size(min = 4, max = 12)
+    @Size(min = 8, max = 15)
     @Column(nullable = false)
     private String password;
 
     @NotNull
-    @Size(min = 4, max = 30)
-    @Column(nullable = false, length = 30)
+    @Size(min = 2, max = 20)
+    @Column(nullable = false, length = 40)
     private String firstname;
 
     @NotNull
-    @Size(min = 4, max = 30)
-    @Column(nullable = false, length = 30)
+    @Size(min = 2, max = 20)
+    @Column(nullable = false, length = 40)
     private String lastname;
 
     @NotNull
     @Email
-    @Size(min = 4, max = 255)
-    @Column(nullable = false, length = 255)
+    @Size(min = 4, max = 50)
+    @Column(nullable = false, length = 50)
     private String email;
 
 
     @NotNull
-    @Size(min = 8, max = 12)
-    @Column(nullable = false, length = 12)
+    @Size(min = 8, max = 9)
+    @Column(nullable = false, length = 9)
     private String phoneNumber;
 
 

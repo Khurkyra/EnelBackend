@@ -14,7 +14,7 @@ public class RutValidation {
         //if (rutSinFormato.matches("\\d{7,9}[0-9kK]")) {
 
         } else {
-            return "El RUT no tiene el formato válido. Debe tener entre 8 a 9 digitos, puntos, guion y digito verificador";
+            return "El RUT no tiene el formato válido. Debe tener entre 8 a 9 digitos, guion y digito verificador";
         }
     }
 

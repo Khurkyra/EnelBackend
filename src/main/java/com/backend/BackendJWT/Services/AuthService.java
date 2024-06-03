@@ -38,7 +38,7 @@ public class AuthService {
             if (request.getRut() == null || request.getRut().isEmpty() || request.getRut().trim().isEmpty()){
                 return AuthResponse.builder()
                         .success(false)
-                        .token("El campo rut no puede ser vacio")
+                        .token("El campo rut es obligatorio y no puede ser vacio")
                         .build();
             }
             // Validar el RUT usando validacionModule11
@@ -53,7 +53,7 @@ public class AuthService {
             if (request.getPassword() == null || request.getPassword().isEmpty() || request.getPassword().trim().isEmpty()) {
                 return AuthResponse.builder()
                         .success(false)
-                        .token("El campo password no puede ser vacio")
+                        .token("El campo password es obligatorio y no puede ser vacio")
                         .build();
             }
 
@@ -75,11 +75,16 @@ public class AuthService {
                     .build();
 
 
-        } catch (Exception e) {
+        } catch (AuthenticationException e) {
             return AuthResponse.builder()
                     .success(false)
-                    .token("Hubo un problema en el servidor")
+                    .token("El rut ingresado no existe en la base de datos")
                     .build();
+        } catch (Exception e) {
+        return AuthResponse.builder()
+                .success(false)
+                .token("Hubo un error al intentar ingresar al home")
+                .build();
         }
     }
 

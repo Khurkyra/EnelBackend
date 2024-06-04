@@ -4,6 +4,7 @@ import com.backend.BackendJWT.Config.Jwt.JwtService;
 import com.backend.BackendJWT.Models.Auth.Cliente;
 import com.backend.BackendJWT.Models.Auth.Consumo;
 import com.backend.BackendJWT.Models.Auth.Medidor;
+import com.backend.BackendJWT.Models.Auth.Suministro;
 import com.backend.BackendJWT.Models.DTO.AuthResponse;
 import com.backend.BackendJWT.Models.DTO.UpdateClienteRequest;
 import com.backend.BackendJWT.Models.DTO.UpdatePasswordRequest;
@@ -78,6 +79,18 @@ public class ClienteController {
         }
 
         Cliente updatedCliente = clienteService.registrarConsumo(medidorId, consumo); // Obtener los datos actualizados del cliente
+        return ResponseEntity.status(HttpStatus.CREATED).body(updatedCliente);
+    }
+
+    //crear consumo de medidor
+    @PostMapping("/medidores/{medidorId}/suministro")
+    public ResponseEntity<?> registrarSuministro(@PathVariable Long medidorId, @RequestBody Suministro suministro, @RequestHeader("Authorization") String token) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El token no es valido");
+        }
+        Cliente updatedCliente = clienteService.registrarSuministro(medidorId, suministro); // Obtener los datos actualizados del cliente
         return ResponseEntity.status(HttpStatus.CREATED).body(updatedCliente);
     }
 

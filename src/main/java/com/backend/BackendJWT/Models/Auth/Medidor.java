@@ -25,23 +25,23 @@ public class Medidor{
     private Long id;
 
     @NotNull
-    @Size(min = 4, max = 20)
+    @Size(min = 4, max = 30)
     @Column(nullable = false, length = 30)
     private String region;
 
     @NotNull
-    @Size(min = 4, max = 20)
+    @Size(min = 4, max = 30)
     @Column(nullable = false, length = 30)
     private String comuna;
 
     @NotNull
-    @Size(min = 7, max = 30)
-    @Column(nullable = false, length = 30)
+    @Size(min = 4, max = 60)
+    @Column(nullable = false, length = 60)
     private String direccion;
 
     @NotNull
-    @Size(min = 7, max = 20)
-    @Column(nullable = false, length = 30)
+    @Size(min = 2, max = 20)
+    @Column(nullable = false, length = 20)
     private String numcliente;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -54,6 +54,10 @@ public class Medidor{
     @JsonManagedReference
     private List<Consumo> consumos;  // Relación con la entidad Consumo
 
+    @OneToMany(mappedBy = "medidor")
+    @JsonManagedReference
+    private List<Suministro> suministros;  // Relación con la entidad Consumo
+
     @Override
     public String toString() {
         return "Medidor{" +
@@ -63,6 +67,7 @@ public class Medidor{
                 ", direccion='" + direccion + '\'' +
                 ", numcliente='" + numcliente + '\'' +
                 ", consumos=" + (consumos != null ? consumos.size() + " consumos" : "0 consumos") +
+                ", consumos=" + (suministros != null ? suministros.size() + " suministros" : "0 suministros") +
                 '}';
     }
 }

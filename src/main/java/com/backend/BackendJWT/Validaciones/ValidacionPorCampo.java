@@ -20,7 +20,7 @@ public class ValidacionPorCampo {
             return new ValidationResponse(false, "El campo apellido solo puede contener letras y una longitud entre 2 y 40 caracteres");
         }
         if(!StringValidation.validatePassword(request.getPassword())){
-            return new ValidationResponse(false, "El campo password debe tener minima de ocho caracteres, con al menos una letra mayuscula, una letra minuscula y un numero");
+            return new ValidationResponse(false, "El campo password debe tener minimo de ocho caracteres y maximo 15, con al menos una letra mayuscula, una letra minuscula y un numero");
         }
         ValidationResponse rutvalidation = RutValidation.validacionModule11(request.getRut());
         if(!rutvalidation.isSuccess()){

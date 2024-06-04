@@ -74,7 +74,7 @@ public class AuthService {
         catch (AuthenticationException e){
             return AuthResponse.builder()
                     .success(false)
-                    .token("El rut ingresado no existe en la base de datos")
+                    .token("El rut o la contraseña son invalidos")
                     .build();
         }
         catch (Exception e) {

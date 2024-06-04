@@ -11,5 +11,4 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class RegisterConsumoRequest {
     private String lectura;
-    private String numcliente;
 }

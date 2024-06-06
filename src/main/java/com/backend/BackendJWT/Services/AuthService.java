@@ -41,6 +41,12 @@ public class AuthService {
                         .token("El campo rut es obligatorio y no puede ser vacio")
                         .build();
             }
+            if(request.getRut().contains(" ")){
+                return AuthResponse.builder()
+                        .success(false)
+                        .token("El campo rut no puede tener espacios vacios")
+                        .build();
+            }
             ValidationResponse rutValidation = RutValidation.validacionModule11(request.getRut());
             if (!rutValidation.isSuccess()) {
                 return AuthResponse.builder()
@@ -128,7 +134,7 @@ public class AuthService {
                 // Generate token and return response
                 return AuthResponse.builder()
                         .success(true)
-                        .token(jwtService.getToken(cliente))
+                        .token("Registro existoso. Por favor ingrese con sus credenciales.")
                         .build();
 
         }
@@ -144,30 +150,32 @@ public class AuthService {
 
     public AuthResponse getUser(SearchUserRequest request) {
         try {
-            if(ValidacionPorCampo.isValidEmail(request.getEmail())){
-                Optional<Cliente> optionalUser = clienteRepository.findByEmail(request.getEmail());
-                if(optionalUser.isPresent()) {
-                    return AuthResponse.builder()
-                            .success(true)
-                            .token("Email valido, se le enviará un codigo de verificación al correo")
-                            .build();
-                } else {
-                    return AuthResponse.builder()
-                            .success(false)
-                            .token("El email ingresado no existe en la base de datos")
-                            .build();
-                }
-            }else{
+            if(request.getEmail().contains(" ")|| request.getEmail() == null || request.getEmail().isEmpty() || request.getEmail().trim().isEmpty()){
+                return AuthResponse.builder()
+                        .success(false)
+                        .token("El campo email es obligatorio, no puede ser vacio ni contener espacios vacios.")
+                        .build();
+            }
+
+                if(ValidacionPorCampo.isValidEmail(request.getEmail())) {
+                    Optional<Cliente> optionalUser = clienteRepository.findByEmail(request.getEmail());
+                    if(optionalUser.isPresent()) {
+                        return AuthResponse.builder()
+                                .success(true)
+                                .token("Email valido, se le enviará un codigo de verificación al correo")
+                                .build();
+                    } else {
+                        return AuthResponse.builder()
+                                .success(false)
+                                .token("El email ingresado no existe en la base de datos")
+                                .build();
+                    }
+                }else{
                 return AuthResponse.builder()
                         .success(false)
                         .token("El campo email es invalido. Debe tener una longitud entre 4 y 50 caracteres, un @ y un dominio")
                         .build();
-            }
-        }catch (AuthenticationException e){
-            return AuthResponse.builder()
-                    .success(false)
-                    .token("cae en authentication Exception")
-                    .build();
+                }
         }
         catch (Exception e) {
             // Manejo de cualquier otra excepción inesperada
@@ -177,6 +185,8 @@ public class AuthService {
                     .build();
         }
     }
+
+
     public AuthResponse updatePassword(UpdatePasswordRequest request) {
         try {
             Optional<Cliente> optionalUser = clienteRepository.findByEmail(request.getEmail());
@@ -186,6 +196,12 @@ public class AuthService {
                     return AuthResponse.builder()
                             .success(false)
                             .token("El campo contraseña es obligatorio y no puede ser vacio")
+                            .build();
+                }
+                if(request.getNewPassword().contains(" ")){
+                    return AuthResponse.builder()
+                            .success(false)
+                            .token("El campo contraseña no puede tener espacios vacios")
                             .build();
                 }
                 if(StringValidation.validatePassword(request.getNewPassword())){
@@ -198,7 +214,7 @@ public class AuthService {
                 }else{
                     return AuthResponse.builder()
                             .success(false)
-                            .token("El campo contraseña no tiene un formato válido. ")
+                            .token("El campo password debe tener minimo de ocho caracteres y maximo 15, con al menos una letra mayuscula, una letra minuscula y un numero")
                             .build();
                 }
             }else{

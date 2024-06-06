@@ -2,14 +2,13 @@ package com.backend.BackendJWT.Services;
 
 import com.backend.BackendJWT.Config.Jwt.JwtService;
 import com.backend.BackendJWT.Models.Auth.*;
-import com.backend.BackendJWT.Models.DTO.AuthResponse;
-import com.backend.BackendJWT.Models.DTO.UpdateClienteRequest;
-import com.backend.BackendJWT.Models.DTO.UpdatePasswordRequest;
+import com.backend.BackendJWT.Models.DTO.*;
 import com.backend.BackendJWT.Repositories.Auth.ClienteRepository;
 import com.backend.BackendJWT.Repositories.Auth.ConsumoRepository;
 import com.backend.BackendJWT.Repositories.Auth.MedidorRepository;
 import com.backend.BackendJWT.Repositories.Auth.SuministroRepository;
 import com.backend.BackendJWT.Validaciones.StringValidation;
+import com.backend.BackendJWT.Validaciones.ValidacionPorCampo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -39,40 +38,31 @@ public class ClienteService {
     @Autowired
     private MedidorRepository medidorRepository;
 
-    public AuthResponse registrarMedidor(Medidor medidor, Cliente cliente) {
+
+    public AuthResponse registrarMedidor(RegisterMedidorRequest medidorRequest, Cliente cliente) {
         try {
-            if (medidor.getComuna() == null || medidor.getComuna().isEmpty() || medidor.getComuna().trim().isEmpty() || medidor.getComuna().length() < 4 || medidor.getComuna().length() >30) {
+            ValidationResponse validacionPorCampo = ValidacionPorCampo.validacionPorCampoMedidor(medidorRequest);
+            if (!validacionPorCampo.isSuccess()) {
                 return AuthResponse.builder()
                         .success(false)
-                        .token("El campo comuna es obligatorio y no puede ser vacio. Debe tener una longitud entre 4 y 30 caracteres")
+                        .token(""+validacionPorCampo.getMessage())
                         .build();
             }
-            if (medidor.getRegion() == null || medidor.getRegion().isEmpty() || medidor.getRegion().trim().isEmpty() || medidor.getRegion().length() < 4 || medidor.getRegion().length() >30) {
-                return AuthResponse.builder()
-                        .success(false)
-                        .token("El campo region es obligatorio y no puede ser vacio. Debe tener una longitud entre 4 y 30 caracteres")
-                        .build();
-            }
-            if (medidor.getDireccion() == null || medidor.getDireccion().isEmpty() || medidor.getDireccion().trim().isEmpty() || medidor.getDireccion().length() < 4 || medidor.getDireccion().length() > 60) {
-                return AuthResponse.builder()
-                        .success(false)
-                        .token("El campo direccion es obligatorio y no puede ser vacio. Debe tener una longitud entre 4 y 60 caracteres")
-                        .build();
-            }
-            if (medidor.getNumcliente() == null || medidor.getNumcliente().isEmpty() || medidor.getNumcliente().trim().isEmpty() || medidor.getNumcliente().length() < 2 || medidor.getNumcliente().length() > 20) {
-                return AuthResponse.builder()
-                        .success(false)
-                        .token("El campo numero cliente es obligatorio y no puede ser vacio. Debe tener una longitud entre 2 y 20 caracteres")
-                        .build();
-            }
-            medidor.setCliente(cliente);
-            medidorRepository.save(medidor);
-            return AuthResponse.builder()
-                    .success(true)
-                    //.token(""+cliente)
-                    .token("Medidor registrado exitosamente")
+            Cliente persistedCliente = clienteRepository.save(cliente); // Persistir el cliente si aún no lo está
+
+            Medidor medidor = Medidor.builder()
+                    .region(medidorRequest.getRegion())
+                    .comuna(medidorRequest.getComuna())
+                    .direccion(medidorRequest.getDireccion())
+                    .numcliente(medidorRequest.getNumcliente())
+                    .cliente(persistedCliente)
                     .build();
 
+           medidorRepository.save(medidor);
+            return AuthResponse.builder()
+                    .success(true)
+                    .token("Medidor registrado exitosamente")
+                    .build();
         }
         catch (Exception e) {
             return AuthResponse.builder()

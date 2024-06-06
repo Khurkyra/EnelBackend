@@ -22,6 +22,29 @@ public class StringValidation {
             return false;
         }
     }
+    //con espacios blancos opcionales
+    public static Boolean IsOnlyAlphaNumeric(String text){
+        Pattern pattern = Pattern.compile("^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9\\s]+$");
+
+        Matcher matcher = pattern.matcher(text);
+        if (matcher.matches()) {
+            return true;
+        }else{
+            return false;
+        }
+    }
+    //con espacios blancos opcionales
+    public static Boolean IsOnlyAlphabeticAndBlank(String text){
+        Pattern pattern = Pattern.compile("^(?=.*[a-zA-Z])[a-zA-Z\\s]+$");
+
+        Matcher matcher = pattern.matcher(text);
+        if(matcher.matches()) {
+            return true;
+        }else{
+            return false;
+        }
+    }
+
     public static Boolean validatePassword(String password) {
         Pattern pattern = Pattern.compile("^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,15}$");
         Matcher matcher = pattern.matcher(password);

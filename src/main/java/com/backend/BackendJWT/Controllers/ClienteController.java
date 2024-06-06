@@ -6,6 +6,7 @@ import com.backend.BackendJWT.Models.Auth.Consumo;
 import com.backend.BackendJWT.Models.Auth.Medidor;
 import com.backend.BackendJWT.Models.Auth.Suministro;
 import com.backend.BackendJWT.Models.DTO.AuthResponse;
+import com.backend.BackendJWT.Models.DTO.RegisterMedidorRequest;
 import com.backend.BackendJWT.Models.DTO.UpdateClienteRequest;
 import com.backend.BackendJWT.Models.DTO.UpdatePasswordRequest;
 import com.backend.BackendJWT.Services.ClienteService;
@@ -54,7 +55,7 @@ public class ClienteController {
 
     //crear medidor
     @PostMapping("/medidores")
-    public ResponseEntity<?> registrarMedidor(@RequestBody Medidor medidor, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> registrarMedidor(@RequestBody RegisterMedidorRequest medidorRequest, @RequestHeader("Authorization") String token) {
         if (token.startsWith("Bearer ")) {
             token = token.substring(7);
         } else {
@@ -64,7 +65,7 @@ public class ClienteController {
         String rut = jwtService.getUserIdFromToken(token);
         Cliente cliente = clienteService.getClienteByRut(rut);
 
-        return ResponseEntity.ok(clienteService.registrarMedidor(medidor, cliente));
+        return ResponseEntity.ok(clienteService.registrarMedidor(medidorRequest, cliente));
 
     }
 

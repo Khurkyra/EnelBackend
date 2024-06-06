@@ -42,7 +42,7 @@ public class AuthController {
 
     //si existe y codigos coinciden, se envia nueva contraseña a este endpoint para su actualizacion
     @PutMapping("/update-password")
-    public ResponseEntity<?> updatePassword(@RequestBody UpdatePasswordRequest request ) {
+    public ResponseEntity<AuthResponse> updatePassword(@RequestBody UpdatePasswordRequest request ) {
         return ResponseEntity.ok(authService.updatePassword(request));
     }
 }

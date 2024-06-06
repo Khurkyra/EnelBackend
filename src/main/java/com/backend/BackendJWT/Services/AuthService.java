@@ -156,8 +156,12 @@ public class AuthService {
                         .token("El campo email es obligatorio, no puede ser vacio ni contener espacios vacios.")
                         .build();
             }
+            if(!ValidacionPorCampo.isValidEmail(request.getEmail())){
+                return AuthResponse.builder()
+                        .success(false)
+                        .token("El campo email es invalido. Debe tener una longitud entre 4 y 50 caracteres, un @ y un dominio. No puede tener espacios vacios.")
+                        .build();            }
 
-                if(ValidacionPorCampo.isValidEmail(request.getEmail())) {
                     Optional<Cliente> optionalUser = clienteRepository.findByEmail(request.getEmail());
                     if(optionalUser.isPresent()) {
                         return AuthResponse.builder()
@@ -170,12 +174,6 @@ public class AuthService {
                                 .token("El email ingresado no existe en la base de datos")
                                 .build();
                     }
-                }else{
-                return AuthResponse.builder()
-                        .success(false)
-                        .token("El campo email es invalido. Debe tener una longitud entre 4 y 50 caracteres, un @ y un dominio")
-                        .build();
-                }
         }
         catch (Exception e) {
             // Manejo de cualquier otra excepción inesperada
@@ -189,7 +187,13 @@ public class AuthService {
 
     public AuthResponse updatePassword(UpdatePasswordRequest request) {
         try {
-            Optional<Cliente> optionalUser = clienteRepository.findByEmail(request.getEmail());
+            if(!ValidacionPorCampo.isValidEmail(request.getEmail())){
+                return AuthResponse.builder()
+                        .success(false)
+                        .token("El campo email es invalido. Debe tener una longitud entre 4 y 50 caracteres, un @ y un dominio. No puede tener espacios vacios.")
+                        .build();
+            }
+                Optional<Cliente> optionalUser = clienteRepository.findByEmail(request.getEmail());
             if(optionalUser.isPresent()){
                 Cliente cliente = optionalUser.get();
                 if (request.getNewPassword() == null || request.getNewPassword().isEmpty() || request.getNewPassword().trim().isEmpty()) {

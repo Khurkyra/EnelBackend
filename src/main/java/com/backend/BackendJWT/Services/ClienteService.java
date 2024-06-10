@@ -190,15 +190,6 @@ public class ClienteService {
     }
 
 
-    //public Cliente registrarSuministro(Long medidorId, Suministro suministro){
-      //  Medidor medidor = medidorRepository.findById(medidorId)
-        //        .orElseThrow(() -> new RuntimeException("Medidor not found"));
-      //  suministro.setMedidor(medidor);
-        //suministroRepository.save(suministro);
-      //  return getClienteByRut(medidor.getCliente().getRut()); // Devolver el cliente actualizado
-   // }
-
-
     public AuthResponse eliminarAsociacionMedidorYObtenerClienteActualizado(Long medidorId, String rut) {
         try{
             Medidor medidor = medidorRepository.findById(medidorId)
@@ -221,13 +212,36 @@ public class ClienteService {
     }
 
 
-
-
     public boolean eliminarUsuario(String rut) {
         Cliente cliente = getClienteByRut(rut);
 
         clienteRepository.delete(cliente);
         return true; // Usuario eliminado con éxito
     }
+
+
+    public AuthResponse registrarConsumo(Long medidorId, Consumo consumo) {
+        Medidor medidor = medidorRepository.findById(medidorId)
+                .orElseThrow(() -> new RuntimeException("Medidor not found"));
+        consumo.setMedidor(medidor);
+        consumoRepository.save(consumo);
+        return AuthResponse.builder()
+                .success(false)
+                .token("Ocurrio un error al intentar eliminar el medidor de su cuenta")
+                .build();
+    }
+
+
+    //public Cliente registrarSuministro(Long medidorId, Suministro suministro){
+    //  Medidor medidor = medidorRepository.findById(medidorId)
+    //        .orElseThrow(() -> new RuntimeException("Medidor not found"));
+    //  suministro.setMedidor(medidor);
+    //suministroRepository.save(suministro);
+    //  return getClienteByRut(medidor.getCliente().getRut()); // Devolver el cliente actualizado
+    // }
+
+
+
+
 
 }

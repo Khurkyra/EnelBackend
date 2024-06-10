@@ -73,7 +73,7 @@ public class ClienteController {
     }
 
 
-    
+
     @GetMapping("/medidores")
     public ResponseEntity<?> obtenerMedidoresPorCliente(@RequestHeader("Authorization") String token) {
         // Extraer el token del encabezado "Bearer "
@@ -137,17 +137,17 @@ public class ClienteController {
 
 
     //crear consumo de medidor
-    //@PostMapping("/medidores/{medidorId}/consumos")
-    //public ResponseEntity<?> registrarConsumo(@PathVariable Long medidorId, @RequestBody RegisterConsumoRequest consumo, @RequestHeader("Authorization") String token) {
-      //  if (token.startsWith("Bearer ")) {
-        //    token = token.substring(7);
-      //  } else {
-        //    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El token no es valido");
-       // }
+    @PostMapping("/medidores/{medidorId}/consumos")
+    public ResponseEntity<?> registrarConsumo(@PathVariable Long medidorId, @RequestBody Consumo consumo, @RequestHeader("Authorization") String token) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El token no es valido");
+        }
 
-        //AuthResponse updatedCliente = clienteService.registrarConsumo(medidorId, consumo); // Obtener los datos actualizados del cliente
-        //return ResponseEntity.status(HttpStatus.CREATED).body(updatedCliente);
-    //}
+        AuthResponse updatedCliente = clienteService.registrarConsumo(medidorId, consumo);// Obtener los datos actualizados del cliente
+        return ResponseEntity.ok(updatedCliente);
+    }
 
     //crear consumo de medidor
    // @PostMapping("/medidores/{medidorId}/suministro")

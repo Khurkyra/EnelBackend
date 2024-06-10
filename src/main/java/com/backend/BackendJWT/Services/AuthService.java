@@ -193,7 +193,8 @@ public class AuthService {
                         .token("El campo email es invalido. Debe tener una longitud entre 4 y 50 caracteres, un @ y un dominio. No puede tener espacios vacios.")
                         .build();
             }
-                Optional<Cliente> optionalUser = clienteRepository.findByEmail(request.getEmail());
+
+            Optional<Cliente> optionalUser = clienteRepository.findByEmail(request.getEmail());
             if(optionalUser.isPresent()){
                 Cliente cliente = optionalUser.get();
                 if (request.getNewPassword() == null || request.getNewPassword().isEmpty() || request.getNewPassword().trim().isEmpty()) {

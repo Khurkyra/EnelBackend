@@ -11,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
+import java.util.Date;
 import java.util.List;
 
 @Builder
@@ -44,11 +45,10 @@ public class Medidor{
     @Column(nullable = false, length = 20)
     private String numcliente;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(nullable = false, name = "cliente_id")
+
     @NotNull
-    @JsonBackReference
-    private Cliente cliente;  // Relación con la entidad Cliente
+    @Column(nullable = false)
+    private Date fecha;
 
     @OneToMany(mappedBy = "medidor")
     @JsonManagedReference
@@ -58,6 +58,12 @@ public class Medidor{
     @JsonManagedReference
     private List<Suministro> suministros;  // Relación con la entidad Consumo
 
+
+    @OneToMany(mappedBy = "medidor")
+    @JsonManagedReference
+    private List<UsuarioMedidor> usuarioMedidores;
+
+
     @Override
     public String toString() {
         return "Medidor{" +
@@ -66,8 +72,10 @@ public class Medidor{
                 ", comuna='" + comuna + '\'' +
                 ", direccion='" + direccion + '\'' +
                 ", numcliente='" + numcliente + '\'' +
+                ", fecha='" + fecha + '\'' +
                 ", consumos=" + (consumos != null ? consumos.size() + " consumos" : "0 consumos") +
-                ", consumos=" + (suministros != null ? suministros.size() + " suministros" : "0 suministros") +
+                ", suministros=" + (suministros != null ? suministros.size() + " suministros" : "0 suministros") +
+                ", usuarioMedidores=" + (usuarioMedidores != null ? usuarioMedidores.size() + " usuarioMedidores" : "0 usuarioMedidores") +
                 '}';
     }
 }

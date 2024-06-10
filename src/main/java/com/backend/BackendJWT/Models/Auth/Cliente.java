@@ -70,7 +70,7 @@ public class Cliente implements UserDetails {
 
     @OneToMany(mappedBy = "cliente")
     @JsonManagedReference
-    private List<Medidor> medidores;
+    private List<UsuarioMedidor> usuarioMedidores;
 
     @Override
     public String getUsername() {
@@ -110,7 +110,7 @@ public class Cliente implements UserDetails {
                 ", password='" + password + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", role=" + role +
-                ", medidores=" + (medidores != null ? medidores.size() + " medidores" : "0 medidores") +
+                ", usuarioMedidores=" + (usuarioMedidores != null ? usuarioMedidores.size() + " usuarioMedidores" : "0 usuarioMedidores") +
                 '}';
     }
 }

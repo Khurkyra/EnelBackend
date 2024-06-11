@@ -34,10 +34,10 @@ public class ClienteController {
         }
         String rut = jwtService.getUserIdFromToken(token);
         Cliente cliente = clienteService.getClienteByRut(rut);
-        Long idCliente = cliente.getId();
-        System.out.println("idCliente: "+ idCliente);
-        AuthResponseObj response = clienteService.obtenerObjectCliente(idCliente);
-        return ResponseEntity.ok(response);
+        System.out.println(cliente);
+        String clienteString = cliente.toString();
+        //Long idCliente = cliente.getId();
+        return ResponseEntity.ok(clienteString);
     }
 
     //actualizar cliente

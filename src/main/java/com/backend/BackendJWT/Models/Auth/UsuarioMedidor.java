@@ -1,5 +1,8 @@
 package com.backend.BackendJWT.Models.Auth;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,8 +20,9 @@ public class UsuarioMedidor {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "cliente_id")
+    @JsonBackReference // Indica el lado que no es el propietario de la relación
     private Cliente cliente;
 
     @ManyToOne(fetch = FetchType.LAZY)

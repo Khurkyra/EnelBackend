@@ -59,7 +59,7 @@ public class Medidor{
     private List<Suministro> suministros;  // Relación con la entidad Consumo
 
 
-    @OneToMany(mappedBy = "medidor")
+    @OneToMany(mappedBy = "medidor", fetch = FetchType.LAZY)
     @JsonManagedReference
     private List<UsuarioMedidor> usuarioMedidores;
 

@@ -69,7 +69,7 @@ public class Cliente implements UserDetails {
     private Role role;  // Ensure there is no @Enumerated here as Role is an entity
 
     @OneToMany(mappedBy = "cliente")
-    @JsonManagedReference
+    @JsonManagedReference // Indica el lado que es el propietario de la relación
     private List<UsuarioMedidor> usuarioMedidores;
 
     @Override

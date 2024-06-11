@@ -4,13 +4,9 @@ import com.backend.BackendJWT.Config.Jwt.JwtService;
 import com.backend.BackendJWT.Models.Auth.*;
 import com.backend.BackendJWT.Models.DTO.*;
 import com.backend.BackendJWT.Repositories.Auth.*;
-import com.backend.BackendJWT.Validaciones.StringValidation;
 import com.backend.BackendJWT.Validaciones.ValidacionPorCampo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -37,7 +33,7 @@ public class ClienteService {
     @Autowired
     private UsuarioMedidorRepository usuarioMedidorRepository;
 
-    public AuthResponse obtenerMedidoresPorCliente(Long clienteId) {
+    public AuthResponseObj obtenerMedidoresPorCliente(Long clienteId) {
         try {
             System.out.println("Se recibe clienteId en service:  " + clienteId);
             List<UsuarioMedidor> usuarioMedidores = usuarioMedidorRepository.findByClienteId(clienteId);
@@ -47,20 +43,44 @@ public class ClienteService {
                     .collect(Collectors.toList());
             String medidoresString = medidores.toString();
             System.out.println("lista de medidores: " + medidores.toString());
-            return AuthResponse.builder()
+            return AuthResponseObj.builder()
                     .success(true)
-                    .token("lista: "+medidoresString)
+                    .message("peticiion exitosa")
+                    .object(medidoresString)
                     .build();
         } catch (Exception e) {
             System.out.println("error:  " + e.getMessage());
-            return AuthResponse.builder()
+            return AuthResponseObj.builder()
                     .success(false)
-                    .token("No se pudo retornar una lista.")
-                    .build();        }
+                    .message("peticiion no exitosa")
+                    .object(null)
+                    .build();
+        }
     }
 
 
+    public AuthResponseObj obtenerObjectCliente(Long clienteId){
+        try{
+            System.out.println("Se recibe clienteId en service:  " + clienteId);
+            List<UsuarioMedidor> usuarioMedidores = usuarioMedidorRepository.findByClienteId(clienteId);
+            System.out.println("Lista de los medidores del usuario en service, antes del return " + usuarioMedidores.toString());
+            String medidoresString = usuarioMedidores.toString();
+            return AuthResponseObj.builder()
+                    .success(true)
+                    .message("peticiion exitosa")
+                    .object(medidoresString)
+                    .build();
+        }catch (Exception e){
+            return AuthResponseObj.builder()
+                    .success(false)
+                    .message("peticiion exitosa")
+                    .object(null)
+                    .build();
+        }
+    }
+
     public Cliente getClienteByRut(String rut) {
+
         System.out.println("cliente rut: "+rut);
         return clienteRepository.findByRut(rut)
                 .orElseThrow(() -> new RuntimeException("User not found"));

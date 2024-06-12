@@ -27,30 +27,27 @@ public class ClienteController {
 
     //datos del cliente
     @GetMapping("/user/profile")
-    public Cliente getUserProfile(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> getUserProfile(@RequestHeader("Authorization") String token) {
         // Extraer el token del encabezado "Bearer "
         if (token.startsWith("Bearer ")) {
             token = token.substring(7);
-        } //else {
-            //return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El token no es válido");
-        //}
+        }else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El token no es válido");
+        }
         String rut = jwtService.getUserIdFromToken(token);
         Cliente cliente = clienteService.getClienteByRut(rut);
-        return cliente;
-        //System.out.println(cliente);
-        //String clienteString = cliente.toString();
-        //Long idCliente = cliente.getId();
-        //return ResponseEntity.ok(clienteString);
+        return ResponseEntity.ok(new AuthResponseObj(true, "Peticion GET exitosa", cliente));
     }
 
     @GetMapping("/userMedidores/profile")
-    public List<Medidor> getUserMedidoresProfile(@RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> getUserMedidoresProfile(@RequestHeader("Authorization") String token) {
+        //public List<Medidor>
         // Extraer el token del encabezado "Bearer "
         if (token.startsWith("Bearer ")) {
             token = token.substring(7);
-        } //else {
-        //return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El token no es válido");
-        //}
+        }else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El token no es válido");
+        }
         String rut = jwtService.getUserIdFromToken(token);
         Cliente cliente = clienteService.getClienteByRut(rut);
         List<UsuarioMedidor> usuarioMedidores = usuarioMedidorRepository.findByClienteId(cliente.getId());
@@ -61,13 +58,7 @@ public class ClienteController {
                 .map(UsuarioMedidor::getMedidor)
                 .collect(Collectors.toList());
         System.out.println(medidores);
-        return medidores;
-
-        //return medidor;
-        //System.out.println(cliente);
-        //String clienteString = cliente.toString();
-        //Long idCliente = cliente.getId();
-        //return ResponseEntity.ok(clienteString);
+        return ResponseEntity.ok(new AuthResponseListObj(true, "Peticion GET exitosa", medidores));
     }
 
 

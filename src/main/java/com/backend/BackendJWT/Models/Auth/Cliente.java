@@ -39,6 +39,7 @@ public class Cliente implements UserDetails {
     @NotNull
     @Size(min = 8, max = 15)
     @Column(nullable = false)
+    @JsonIgnore
     private String password;
 
     @NotNull
@@ -67,11 +68,12 @@ public class Cliente implements UserDetails {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(nullable = false, name = "role_id")
     @NotNull
+    @JsonIgnore
     private Role role;  // Ensure there is no @Enumerated here as Role is an entity
 
     @OneToMany(mappedBy = "cliente")
     @JsonManagedReference // Indica el lado que es el propietario de la relación
-    //@JsonIgnore
+    @JsonIgnore
     private List<UsuarioMedidor> usuarioMedidores;
 
 

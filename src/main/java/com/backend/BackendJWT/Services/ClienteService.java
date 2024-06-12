@@ -198,8 +198,6 @@ public class ClienteService {
     }
 
 
-
-
     public GetFechaResponse obtenerFechaConsumo(Long medidorId){
         try{
             Medidor medidor = medidorRepository.findById(medidorId)

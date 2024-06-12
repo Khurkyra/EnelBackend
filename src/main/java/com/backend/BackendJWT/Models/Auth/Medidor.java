@@ -1,6 +1,7 @@
 package com.backend.BackendJWT.Models.Auth;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -52,15 +53,18 @@ public class Medidor{
 
     @OneToMany(mappedBy = "medidor")
     @JsonManagedReference
+    @JsonIgnore
     private List<Consumo> consumos;  // Relación con la entidad Consumo
 
-    @OneToMany(mappedBy = "medidor")
+    @OneToMany(mappedBy = "medidor") //fetch lazy carga datos relacionados solo cuando se accede a ellos explicitamente
     @JsonManagedReference
+    @JsonIgnore
     private List<Suministro> suministros;  // Relación con la entidad Consumo
 
 
-    @OneToMany(mappedBy = "medidor", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "medidor") //fetch lazy carga datos relacionados solo cuando se accede a ellos explicitamente
     @JsonManagedReference
+    @JsonIgnore
     private List<UsuarioMedidor> usuarioMedidores;
 
 

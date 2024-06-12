@@ -32,25 +32,41 @@ public class ClienteService {
 
     @Autowired
     private UsuarioMedidorRepository usuarioMedidorRepository;
+    public List<Medidor> obtenerMedidoresDeCliente(Long clienteId) {
+        System.out.println("Se recibe clienteId en service: " + clienteId);
+        List<UsuarioMedidor> usuarioMedidores = usuarioMedidorRepository.findByClienteId(clienteId);
+        System.out.println("Lista de los medidores del usuario en service, antes del return " + usuarioMedidores.toString());
+        System.out.println(usuarioMedidores);
 
-    public AuthResponseObj obtenerMedidoresPorCliente(Long clienteId) {
+        List<Medidor> medidores = usuarioMedidores.stream()
+                .map(UsuarioMedidor::getMedidor)
+                .collect(Collectors.toList());
+        System.out.println(medidores);
+        return medidores;
+    }
+
+    public AuthResponseListObj obtenerMedidoresPorCliente(Long clienteId) {
         try {
             System.out.println("Se recibe clienteId en service:  " + clienteId);
             List<UsuarioMedidor> usuarioMedidores = usuarioMedidorRepository.findByClienteId(clienteId);
             System.out.println("Lista de los medidores del usuario en service, antes del return " + usuarioMedidores.toString());
+            System.out.println(usuarioMedidores);
             List<Medidor> medidores = usuarioMedidores.stream()
                     .map(UsuarioMedidor::getMedidor)
                     .collect(Collectors.toList());
-            String medidoresString = medidores.toString();
-            System.out.println("lista de medidores: " + medidores.toString());
-            return AuthResponseObj.builder()
+            //String medidoresString = medidores.toString();
+            //System.out.println("lista de medidores: " + medidores.toString());
+           //retorna bien el objeto, el problema esta en que si retorno directamente el objeto list de medidor...
+            //srping boot automaticamente lo serializa en json.... pero para que lo serialice bien las entidades deben estar correctamente declaradas.
+            System.out.println(medidores);
+            return AuthResponseListObj.builder()
                     .success(true)
                     .message("peticiion exitosa")
-                    .object(medidoresString)
+                    .object(medidores)
                     .build();
         } catch (Exception e) {
             System.out.println("error:  " + e.getMessage());
-            return AuthResponseObj.builder()
+            return AuthResponseListObj.builder()
                     .success(false)
                     .message("peticiion no exitosa")
                     .object(null)

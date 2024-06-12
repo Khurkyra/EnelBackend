@@ -1,8 +1,6 @@
 package com.backend.BackendJWT.Models.Auth;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,9 +21,13 @@ public class UsuarioMedidor {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "cliente_id")
     @JsonBackReference // Indica el lado que no es el propietario de la relación
+    @JsonIgnore
     private Cliente cliente;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "medidor_id")
+    @JsonBackReference
+    // Indica el lado que no es el propietario de la relación
+    //@JsonIgnore
     private Medidor medidor;
 }

@@ -11,6 +11,9 @@ import java.util.List;
 public interface UsuarioMedidorRepository extends JpaRepository<UsuarioMedidor, Long> {
     List<UsuarioMedidor> findByClienteId(Long clienteId);
     boolean existsByClienteAndMedidor(Cliente cliente, Medidor medidor);
+
+    UsuarioMedidor findByClienteAndMedidor(Cliente cliente, Medidor medidor);
+
     @Transactional
     void deleteByMedidorAndClienteRut(Medidor medidor, String rut);
 }

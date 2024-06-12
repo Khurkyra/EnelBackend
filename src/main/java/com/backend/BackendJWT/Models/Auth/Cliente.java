@@ -1,5 +1,6 @@
 package com.backend.BackendJWT.Models.Auth;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -70,7 +71,9 @@ public class Cliente implements UserDetails {
 
     @OneToMany(mappedBy = "cliente")
     @JsonManagedReference // Indica el lado que es el propietario de la relación
+    //@JsonIgnore
     private List<UsuarioMedidor> usuarioMedidores;
+
 
     @Override
     public String getUsername() {

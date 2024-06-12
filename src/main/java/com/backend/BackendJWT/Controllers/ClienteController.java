@@ -1,11 +1,10 @@
 package com.backend.BackendJWT.Controllers;
 
 import com.backend.BackendJWT.Config.Jwt.JwtService;
-import com.backend.BackendJWT.Models.Auth.Cliente;
-import com.backend.BackendJWT.Models.Auth.Consumo;
-import com.backend.BackendJWT.Models.Auth.Medidor;
-import com.backend.BackendJWT.Models.Auth.Suministro;
+import com.backend.BackendJWT.Models.Auth.*;
 import com.backend.BackendJWT.Models.DTO.*;
+import com.backend.BackendJWT.Repositories.Auth.MedidorRepository;
+import com.backend.BackendJWT.Repositories.Auth.UsuarioMedidorRepository;
 import com.backend.BackendJWT.Services.ClienteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -13,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin("*")
@@ -21,24 +21,55 @@ import java.util.List;
 public class ClienteController {
     private final ClienteService clienteService;
     private final JwtService jwtService;
+    private final MedidorRepository medidorRepository;
+    private final UsuarioMedidorRepository usuarioMedidorRepository;
 
 
     //datos del cliente
     @GetMapping("/user/profile")
-    public ResponseEntity<?> getUserProfile(@RequestHeader("Authorization") String token) {
+    public Cliente getUserProfile(@RequestHeader("Authorization") String token) {
         // Extraer el token del encabezado "Bearer "
         if (token.startsWith("Bearer ")) {
             token = token.substring(7);
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El token no es válido");
-        }
+        } //else {
+            //return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El token no es válido");
+        //}
         String rut = jwtService.getUserIdFromToken(token);
         Cliente cliente = clienteService.getClienteByRut(rut);
-        System.out.println(cliente);
-        String clienteString = cliente.toString();
+        return cliente;
+        //System.out.println(cliente);
+        //String clienteString = cliente.toString();
         //Long idCliente = cliente.getId();
-        return ResponseEntity.ok(clienteString);
+        //return ResponseEntity.ok(clienteString);
     }
+
+    @GetMapping("/userMedidores/profile")
+    public List<Medidor> getUserMedidoresProfile(@RequestHeader("Authorization") String token) {
+        // Extraer el token del encabezado "Bearer "
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        } //else {
+        //return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El token no es válido");
+        //}
+        String rut = jwtService.getUserIdFromToken(token);
+        Cliente cliente = clienteService.getClienteByRut(rut);
+        List<UsuarioMedidor> usuarioMedidores = usuarioMedidorRepository.findByClienteId(cliente.getId());
+        System.out.println("Lista de los medidores del usuario en service, antes del return " + usuarioMedidores.toString());
+        System.out.println(usuarioMedidores);
+
+        List<Medidor> medidores = usuarioMedidores.stream()
+                .map(UsuarioMedidor::getMedidor)
+                .collect(Collectors.toList());
+        System.out.println(medidores);
+        return medidores;
+
+        //return medidor;
+        //System.out.println(cliente);
+        //String clienteString = cliente.toString();
+        //Long idCliente = cliente.getId();
+        //return ResponseEntity.ok(clienteString);
+    }
+
 
     //actualizar cliente
     @PatchMapping("/profile/update")
@@ -77,21 +108,24 @@ public class ClienteController {
 
 
     @GetMapping("/medidores")
-    public ResponseEntity<?> obtenerMedidoresPorCliente(@RequestHeader("Authorization") String token) {
+    public List<Medidor> obtenerMedidoresPorCliente(@RequestHeader("Authorization") String token) {
         // Extraer el token del encabezado "Bearer "
         if (token.startsWith("Bearer ")) {
             token = token.substring(7);
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El token no es válido");
-        }
+        } //else {
+            //return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El token no es válido");
+        //}
         String rut = jwtService.getUserIdFromToken(token);
         Cliente cliente = clienteService.getClienteByRut(rut);
         Long idCliente = cliente.getId();
         System.out.println("idCliente: "+ idCliente);
-        AuthResponseObj response = clienteService.obtenerMedidoresPorCliente(idCliente);
-        return ResponseEntity.ok(response);
+        return clienteService.obtenerMedidoresDeCliente(idCliente);
+        //return ResponseEntity.ok(response);
     }
-
+    //@GetMapping("/user/medidores")
+    //public List<Medidor> obtenerMedidoresDeCliente(@RequestParam Long clienteId) {
+      //  return usuarioMedidorService.obtenerMedidoresDeCliente(clienteId);
+    //}
 
     //crear medidor
     @PostMapping("/medidores")

@@ -25,7 +25,7 @@ public class ClienteController {
     private final UsuarioMedidorRepository usuarioMedidorRepository;
 
 
-    //datos del cliente
+    //Datos del cliente
     @GetMapping("/user/profile")
     public ResponseEntity<?> getUserProfile(@RequestHeader("Authorization") String token) {
         // Extraer el token del encabezado "Bearer "
@@ -39,9 +39,10 @@ public class ClienteController {
         return ResponseEntity.ok(new AuthResponseObj(true, "Peticion GET exitosa", cliente));
     }
 
+
+    //Listado de medidores asociados al cliente
     @GetMapping("/userMedidores/profile")
     public ResponseEntity<?> getUserMedidoresProfile(@RequestHeader("Authorization") String token) {
-        //public List<Medidor>
         // Extraer el token del encabezado "Bearer "
         if (token.startsWith("Bearer ")) {
             token = token.substring(7);
@@ -61,8 +62,20 @@ public class ClienteController {
         return ResponseEntity.ok(new AuthResponseListObj(true, "Peticion GET exitosa", medidores));
     }
 
+    //Entrega fecha de consumo para registrar consumo del medidor.
+    @GetMapping("/medidores/{medidorId}/getFechaConsumo")
+    public ResponseEntity<?> getFechaConsumo(@PathVariable Long medidorId, @RequestHeader("Authorization") String token) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }else{
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El token no es valido");
+        }
+        GetFechaResponse fechaConsumo = clienteService.obtenerFechaConsumo(medidorId);
+        return ResponseEntity.ok(fechaConsumo);
+    }
 
-    //actualizar cliente
+
+    //Actualizar cliente
     @PatchMapping("/profile/update")
     public ResponseEntity<?> updateUserProfile(@RequestHeader("Authorization") String token, @RequestBody UpdateClienteRequest updateClienteRequest) {
         if (token.startsWith("Bearer ")) {
@@ -76,7 +89,7 @@ public class ClienteController {
     }
 
 
-    //borrar cliente
+    //Borrar cliente
     @DeleteMapping("/deleteAccount")
     public ResponseEntity<?> eliminarUsuario(@RequestHeader("Authorization") String token) {
         if (token.startsWith("Bearer ")) {
@@ -97,28 +110,7 @@ public class ClienteController {
     }
 
 
-
-    @GetMapping("/medidores")
-    public List<Medidor> obtenerMedidoresPorCliente(@RequestHeader("Authorization") String token) {
-        // Extraer el token del encabezado "Bearer "
-        if (token.startsWith("Bearer ")) {
-            token = token.substring(7);
-        } //else {
-            //return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El token no es válido");
-        //}
-        String rut = jwtService.getUserIdFromToken(token);
-        Cliente cliente = clienteService.getClienteByRut(rut);
-        Long idCliente = cliente.getId();
-        System.out.println("idCliente: "+ idCliente);
-        return clienteService.obtenerMedidoresDeCliente(idCliente);
-        //return ResponseEntity.ok(response);
-    }
-    //@GetMapping("/user/medidores")
-    //public List<Medidor> obtenerMedidoresDeCliente(@RequestParam Long clienteId) {
-      //  return usuarioMedidorService.obtenerMedidoresDeCliente(clienteId);
-    //}
-
-    //crear medidor
+    //Crear medidor
     @PostMapping("/medidores")
     public ResponseEntity<?> registrarMedidor(@RequestBody RegisterMedidorRequest medidorRequest, @RequestHeader("Authorization") String token) {
         if (token.startsWith("Bearer ")) {
@@ -132,18 +124,6 @@ public class ClienteController {
 
         return ResponseEntity.ok(clienteService.registrarMedidor(medidorRequest, cliente));
 
-    }
-
-
-    @GetMapping("/medidores/{medidorId}/getFechaConsumo")
-    public ResponseEntity<?>getFechaConsumo(@PathVariable Long medidorId, @RequestHeader("Authorization") String token) {
-        if (token.startsWith("Bearer ")) {
-            token = token.substring(7);
-        }else{
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El token no es valido");
-        }
-        GetFechaResponse fechaConsumo = clienteService.obtenerFechaConsumo(medidorId);
-        return ResponseEntity.ok(fechaConsumo);
     }
 
 

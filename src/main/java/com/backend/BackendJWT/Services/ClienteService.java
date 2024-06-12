@@ -255,14 +255,29 @@ public class ClienteService {
 
 
     public AuthResponse registrarConsumo(Long medidorId, Consumo consumo) {
-        Medidor medidor = medidorRepository.findById(medidorId)
-                .orElseThrow(() -> new RuntimeException("Medidor not found"));
-        consumo.setMedidor(medidor);
-        consumoRepository.save(consumo);
+        //arreglar validaciones y fecha.
+        try{
+            Medidor medidor = medidorRepository.findById(medidorId)
+                    .orElseThrow(() -> new RuntimeException("Medidor not found"));
+            consumo.setMedidor(medidor);
+            consumoRepository.save(consumo);
+            return AuthResponse.builder()
+                    .success(true)
+                    .token("Su consumo ha sido registrado exitosamente")
+                    .build();
+        }catch(RuntimeException e){
+            //hacerlo mas especifico, ya que ante cualquier error caera aca, y este debe solo ser para
+            //un medidor que no se encuentra en la base de datos/
+            return AuthResponse.builder()
+                    .success(false)
+                    .token("El medidor seleccionado no se encuentra en la base de datos")
+                    .build();
+        }catch(Exception e){
         return AuthResponse.builder()
                 .success(false)
-                .token("Ocurrio un error al intentar eliminar el medidor de su cuenta")
+                .token("Ocurrio un error al intentar registrar su consumo")
                 .build();
+        }
     }
 
 

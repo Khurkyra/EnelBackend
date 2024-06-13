@@ -24,11 +24,6 @@ public class Suministro {
     private Long id;
 
     @NotNull
-    @Size(min = 4, max = 20)
-    @Column(nullable = false, length = 30)
-    private String numcliente;
-
-    @NotNull
     @Size(min = 2, max = 30)
     @Column(nullable = false, length = 30)
     private String motivo;

@@ -68,6 +68,20 @@ public class ClienteController {
     }
 
 
+    //Entrega suministros del medidor.
+    @GetMapping("/medidores/{medidorId}/getSuministros")
+    public ResponseEntity<?> getSuministros(@PathVariable Long medidorId, @RequestHeader("Authorization") String token) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        }else{
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El token no es valido");
+        }
+        AuthResponseListObj suministrosDeMedidor = clienteService.obtenerSuministrosDeMedidor(medidorId);
+        return ResponseEntity.ok(suministrosDeMedidor);
+    }
+
+
+
     //Entrega fecha de consumo para registrar consumo del medidor.
     @GetMapping("/medidores/{medidorId}/getFechaConsumo")
     public ResponseEntity<?> getFechaConsumo(@PathVariable Long medidorId, @RequestHeader("Authorization") String token) {
@@ -78,6 +92,49 @@ public class ClienteController {
         }
         GetFechaResponse fechaConsumo = clienteService.obtenerFechaConsumo(medidorId);
         return ResponseEntity.ok(fechaConsumo);
+    }
+
+
+    //Crear medidor
+    @PostMapping("/medidores")
+    public ResponseEntity<?> registrarMedidor(@RequestBody RegisterMedidorRequest medidorRequest, @RequestHeader("Authorization") String token) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El token no es valido");
+        }
+        String rut = jwtService.getUserIdFromToken(token);
+        //Cliente cliente = clienteService.getClienteByRut(rut);
+        return ResponseEntity.ok(clienteService.registrarMedidor(medidorRequest, rut));
+
+    }
+
+
+    //Crear consumo de medidor
+    @PostMapping("/medidores/{medidorId}/consumos")
+    public ResponseEntity<?> registrarConsumo(@PathVariable Long medidorId, @RequestBody Consumo consumo, @RequestHeader("Authorization") String token) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El token no es valido");
+        }
+
+        AuthResponse nuevoConsumo = clienteService.registrarConsumo(medidorId, consumo);// Obtener los datos actualizados del cliente
+        return ResponseEntity.ok(nuevoConsumo);
+    }
+
+
+    //Crear consumo de medidor
+    @PostMapping("/medidores/{medidorId}/suministro")
+    public ResponseEntity<?> registrarSuministro(@PathVariable Long medidorId, @RequestBody Suministro suministro, @RequestHeader("Authorization") String token) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El token no es valido");
+        }
+
+        AuthResponse nuevoSuministro = clienteService.registrarSuministro(medidorId, suministro);// Obtener los datos actualizados del cliente
+        return ResponseEntity.ok(nuevoSuministro);
     }
 
 
@@ -94,6 +151,7 @@ public class ClienteController {
         AuthResponse updatedCliente = clienteService.actualizarClienteParcial(rut, updateClienteRequest);
         return ResponseEntity.ok(updatedCliente);
     }
+
 
 
     //Borrar cliente
@@ -114,36 +172,6 @@ public class ClienteController {
         } else {
             return ResponseEntity.status(HttpStatus.CONFLICT).body("No se puede eliminar el usuario");
         }
-    }
-
-
-    //Crear medidor
-    @PostMapping("/medidores")
-    public ResponseEntity<?> registrarMedidor(@RequestBody RegisterMedidorRequest medidorRequest, @RequestHeader("Authorization") String token) {
-        if (token.startsWith("Bearer ")) {
-            token = token.substring(7);
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El token no es valido");
-        }
-        String rut = jwtService.getUserIdFromToken(token);
-        Cliente cliente = clienteService.getClienteByRut(rut);
-        return ResponseEntity.ok(clienteService.registrarMedidor(medidorRequest, cliente));
-
-    }
-
-
-
-    //Crear consumo de medidor
-    @PostMapping("/medidores/{medidorId}/consumos")
-    public ResponseEntity<?> registrarConsumo(@PathVariable Long medidorId, @RequestBody Consumo consumo, @RequestHeader("Authorization") String token) {
-        if (token.startsWith("Bearer ")) {
-            token = token.substring(7);
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El token no es valido");
-        }
-
-        AuthResponse updatedCliente = clienteService.registrarConsumo(medidorId, consumo);// Obtener los datos actualizados del cliente
-        return ResponseEntity.ok(updatedCliente);
     }
 
 

@@ -4,6 +4,7 @@ import com.backend.BackendJWT.Config.Jwt.JwtService;
 import com.backend.BackendJWT.Models.Auth.*;
 import com.backend.BackendJWT.Models.DTO.*;
 import com.backend.BackendJWT.Repositories.Auth.*;
+import com.backend.BackendJWT.Validaciones.StringValidation;
 import com.backend.BackendJWT.Validaciones.ValidacionPorCampo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +21,7 @@ public class ClienteService {
     private ClienteRepository clienteRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
+
     @Autowired
     private SuministroRepository suministroRepository;
 
@@ -33,15 +35,19 @@ public class ClienteService {
     @Autowired
     private UsuarioMedidorRepository usuarioMedidorRepository;
 
-
+    //GETS
     public Cliente getClienteByRut(String rut) {
         System.out.println("cliente rut en getCliente: "+rut);
         try{
             Cliente cliente = clienteRepository.getClienteByRut(rut);
-            System.out.println("cliente encontrado en getcliente" + cliente);
-            return cliente;
+            if(cliente != null){
+                System.out.println("cliente encontrado en getcliente" + cliente);
+                return cliente;
+            }else{
+                return null;
+            }
         }catch(Exception e){
-            System.out.println("cliente no encontrado en getcliente");
+            System.out.println("Error");
             return null;
         }
     }
@@ -66,6 +72,8 @@ public class ClienteService {
                     .build();
         }
     }
+
+
 
     public AuthResponseListObj obtenerMedidoresDeCliente(String rut) {
         try{
@@ -115,23 +123,71 @@ public class ClienteService {
         }catch(Exception e){
             return AuthResponseListObj.builder()
                     .success(false)
-                    .message("Peticion GET rechazada. Ocurrio un error al intentar obtener el medidor")
+                    .message("Peticion GET rechazada. Ocurrio un error al intentar obtener el consumo del medidor")
                     .object(null)
                     .build();
         }
     }
 
 
+    public AuthResponseListObj obtenerSuministrosDeMedidor(Long medidorId) {
+        try{
+            List<Suministro> suministros = suministroRepository.findByMedidorId(medidorId);
+            System.out.println("suministros: "+suministros);
+            return AuthResponseListObj.builder()
+                    .success(true)
+                    .message("Peticion GET exitosa")
+                    .object(suministros)
+                    .build();
+        }catch(Exception e){
+            return AuthResponseListObj.builder()
+                    .success(false)
+                    .message("Peticion GET rechazada. Ocurrio un error al intentar obtener el suministro del medidor")
+                    .object(null)
+                    .build();
+        }
+    }
+
+
+
+    public GetFechaResponse obtenerFechaConsumo(Long medidorId){
+        try{
+            Medidor medidor = medidorRepository.findById(medidorId)
+                    .orElseThrow(() -> new RuntimeException("Medidor not found"));
+            Date fechamedidor = medidor.getFecha();
+            return GetFechaResponse.builder()
+                    .success(true)
+                    .fecha(fechamedidor)
+                    .message("Fecha obtenida exitosamente")
+                    .build();
+        }catch(RuntimeException e){
+            return GetFechaResponse.builder()
+                    .success(false)
+                    .fecha(null)
+                    .message("El medidor seleccionado no se encuentra en nuestra base de datos:  "+e.getMessage())
+                    .build();
+        }catch(Exception e){
+            return GetFechaResponse.builder()
+                    .success(false)
+                    .fecha(null)
+                    .message("Hubo un error al intentar obetener la fecha de consumo"+ e.getMessage())
+                    .build();
+        }
+    }
+
+
+
+    //PATCHS
     public AuthResponse actualizarClienteParcial(String rut, UpdateClienteRequest updateClienteRequest) {
         Cliente cliente = clienteRepository.getClienteByRut(rut);
-        System.out.println("cliente: "+ cliente.toString());
+        System.out.println("cliente: " + cliente.toString());
 
-        try{
+        try {
             ValidationResponse validacionPorCampo = ValidacionPorCampo.validacionPorCampoUpdate(updateClienteRequest);
             if (!validacionPorCampo.isSuccess()) {
                 return AuthResponse.builder()
                         .success(false)
-                        .token(""+validacionPorCampo.getMessage())
+                        .token("" + validacionPorCampo.getMessage())
                         .build();
             }
             cliente.setPassword(passwordEncoder.encode(updateClienteRequest.getPassword()));
@@ -140,17 +196,17 @@ public class ClienteService {
                     .success(true)
                     .token("Datos actualizados exitosamente")
                     .build();
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             return AuthResponse.builder()
                     .success(false)
-                    .token("Hubo un error al intentar actualizar los datos: "+e.getMessage())
+                    .token("Hubo un error al intentar actualizar los datos: " + e.getMessage())
                     .build();
         }
+
     }
 
-
-    public AuthResponse registrarMedidor(RegisterMedidorRequest medidorRequest, Cliente cliente) {
+    //POSTS
+    public AuthResponse registrarMedidor(RegisterMedidorRequest medidorRequest, String rut) {
         try {
             // Validar campos del medidor
             ValidationResponse validacionPorCampo = ValidacionPorCampo.validacionPorCampoMedidor(medidorRequest);
@@ -160,7 +216,7 @@ public class ClienteService {
                         .token(validacionPorCampo.getMessage())
                         .build();
             }
-
+            Cliente cliente = clienteRepository.getClienteByRut(rut);
             // Crear una instancia de Calendar y establecer la fecha específica
             Calendar calendar = Calendar.getInstance();
             calendar.set(Calendar.YEAR, 2024);
@@ -217,32 +273,63 @@ public class ClienteService {
     }
 
 
-    public GetFechaResponse obtenerFechaConsumo(Long medidorId){
+    public AuthResponse registrarConsumo(Long medidorId, Consumo consumo) {
+        //arreglar validaciones y fecha.
         try{
             Medidor medidor = medidorRepository.findById(medidorId)
                     .orElseThrow(() -> new RuntimeException("Medidor not found"));
-            Date fechamedidor = medidor.getFecha();
-            return GetFechaResponse.builder()
+            consumo.setMedidor(medidor);
+            consumoRepository.save(consumo);
+            return AuthResponse.builder()
                     .success(true)
-                    .fecha(fechamedidor)
-                    .message("Fecha obtenida exitosamente")
+                    .token("Su consumo ha sido registrado exitosamente")
                     .build();
         }catch(RuntimeException e){
-            return GetFechaResponse.builder()
+            //hacerlo mas especifico, ya que ante cualquier error caera aca, y este debe solo ser para
+            //un medidor que no se encuentra en la base de datos/
+            return AuthResponse.builder()
                     .success(false)
-                    .fecha(null)
-                    .message("El medidor seleccionado no se encuentra en nuestra base de datos:  "+e.getMessage())
+                    .token("El medidor seleccionado no se encuentra en la base de datos")
                     .build();
         }catch(Exception e){
-            return GetFechaResponse.builder()
+            return AuthResponse.builder()
                     .success(false)
-                    .fecha(null)
-                    .message("Hubo un error al intentar obetener la fecha de consumo"+ e.getMessage())
+                    .token("Ocurrio un error al intentar registrar su consumo")
                     .build();
         }
     }
 
 
+
+    public AuthResponse registrarSuministro(Long medidorId, Suministro suministro) {
+        //arreglar validaciones y fecha.
+        try{
+            Medidor medidor = medidorRepository.findById(medidorId)
+                    .orElseThrow(() -> new RuntimeException("Medidor not found"));
+            suministro.setMedidor(medidor);
+            suministroRepository.save(suministro);
+            return AuthResponse.builder()
+                    .success(true)
+                    .token("Su suministro ha sido registrado exitosamente")
+                    .build();
+        }catch(RuntimeException e){
+            //hacerlo mas especifico, ya que ante cualquier error caera aca, y este debe solo ser para
+            //un medidor que no se encuentra en la base de datos/
+            return AuthResponse.builder()
+                    .success(false)
+                    .token("El medidor seleccionado no se encuentra en la base de datos")
+                    .build();
+        }catch(Exception e){
+            return AuthResponse.builder()
+                    .success(false)
+                    .token("Ocurrio un error al intentar registrar su suministro")
+                    .build();
+        }
+    }
+
+
+
+    //DELETES
     public AuthResponse eliminarAsociacionMedidorYObtenerClienteActualizado(Long medidorId, String rut) {
         try{
             Medidor medidor = medidorRepository.findById(medidorId)
@@ -265,38 +352,12 @@ public class ClienteService {
     }
 
 
+
     public boolean eliminarUsuario(String rut) {
         Cliente cliente = getClienteByRut(rut);
 
         clienteRepository.delete(cliente);
         return true; // Usuario eliminado con éxito
-    }
-
-
-    public AuthResponse registrarConsumo(Long medidorId, Consumo consumo) {
-        //arreglar validaciones y fecha.
-        try{
-            Medidor medidor = medidorRepository.findById(medidorId)
-                    .orElseThrow(() -> new RuntimeException("Medidor not found"));
-            consumo.setMedidor(medidor);
-            consumoRepository.save(consumo);
-            return AuthResponse.builder()
-                    .success(true)
-                    .token("Su consumo ha sido registrado exitosamente")
-                    .build();
-        }catch(RuntimeException e){
-            //hacerlo mas especifico, ya que ante cualquier error caera aca, y este debe solo ser para
-            //un medidor que no se encuentra en la base de datos/
-            return AuthResponse.builder()
-                    .success(false)
-                    .token("El medidor seleccionado no se encuentra en la base de datos")
-                    .build();
-        }catch(Exception e){
-        return AuthResponse.builder()
-                .success(false)
-                .token("Ocurrio un error al intentar registrar su consumo")
-                .build();
-        }
     }
 
 }

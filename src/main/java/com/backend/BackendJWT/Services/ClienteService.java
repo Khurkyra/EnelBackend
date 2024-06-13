@@ -32,74 +32,93 @@ public class ClienteService {
 
     @Autowired
     private UsuarioMedidorRepository usuarioMedidorRepository;
-    public List<Medidor> obtenerMedidoresDeCliente(Long clienteId) {
-        System.out.println("Se recibe clienteId en service: " + clienteId);
-        List<UsuarioMedidor> usuarioMedidores = usuarioMedidorRepository.findByClienteId(clienteId);
-        System.out.println("Lista de los medidores del usuario en service, antes del return " + usuarioMedidores.toString());
-        System.out.println(usuarioMedidores);
 
-        List<Medidor> medidores = usuarioMedidores.stream()
-                .map(UsuarioMedidor::getMedidor)
-                .collect(Collectors.toList());
-        System.out.println(medidores);
-        return medidores;
-    }
-
-    public AuthResponseListObj obtenerMedidoresPorCliente(Long clienteId) {
-        try {
-            System.out.println("Se recibe clienteId en service:  " + clienteId);
-            List<UsuarioMedidor> usuarioMedidores = usuarioMedidorRepository.findByClienteId(clienteId);
-            System.out.println("Lista de los medidores del usuario en service, antes del return " + usuarioMedidores.toString());
-            System.out.println(usuarioMedidores);
-            List<Medidor> medidores = usuarioMedidores.stream()
-                    .map(UsuarioMedidor::getMedidor)
-                    .collect(Collectors.toList());
-            //String medidoresString = medidores.toString();
-            //System.out.println("lista de medidores: " + medidores.toString());
-           //retorna bien el objeto, el problema esta en que si retorno directamente el objeto list de medidor...
-            //srping boot automaticamente lo serializa en json.... pero para que lo serialice bien las entidades deben estar correctamente declaradas.
-            System.out.println(medidores);
-            return AuthResponseListObj.builder()
-                    .success(true)
-                    .message("peticiion exitosa")
-                    .object(medidores)
-                    .build();
-        } catch (Exception e) {
-            System.out.println("error:  " + e.getMessage());
-            return AuthResponseListObj.builder()
-                    .success(false)
-                    .message("peticiion no exitosa")
-                    .object(null)
-                    .build();
-        }
-    }
-
-
-    public AuthResponseObj obtenerObjectCliente(Long clienteId){
-        try{
-            System.out.println("Se recibe clienteId en service:  " + clienteId);
-            List<UsuarioMedidor> usuarioMedidores = usuarioMedidorRepository.findByClienteId(clienteId);
-            System.out.println("Lista de los medidores del usuario en service, antes del return " + usuarioMedidores.toString());
-            String medidoresString = usuarioMedidores.toString();
-            return AuthResponseObj.builder()
-                    .success(true)
-                    .message("peticiion exitosa")
-                    .object(medidoresString)
-                    .build();
-        }catch (Exception e){
-            return AuthResponseObj.builder()
-                    .success(false)
-                    .message("peticiion exitosa")
-                    .object(null)
-                    .build();
-        }
-    }
 
     public Cliente getClienteByRut(String rut) {
+        System.out.println("cliente rut en getCliente: "+rut);
+        try{
+            Cliente cliente = clienteRepository.getClienteByRut(rut);
+            System.out.println("cliente encontrado en getcliente" + cliente);
+            return cliente;
+        }catch(Exception e){
+            System.out.println("cliente no encontrado en getcliente");
+            return null;
+        }
+    }
 
+
+    public AuthResponseObj obtenerCliente(String rut){
         System.out.println("cliente rut: "+rut);
-        return clienteRepository.findByRut(rut)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        Cliente cliente = getClienteByRut(rut);
+        if (cliente == null){
+            System.out.println("cliente nulo en obtenercliente" + cliente);
+            return AuthResponseObj.builder()
+                    .success(false)
+                    .message("El cliente no se encuentra en la base de datos")
+                    .object(null)
+                    .build();
+        }else{
+            System.out.println("cliente encontrado en obtenercliente" + cliente);
+            return AuthResponseObj.builder()
+                    .success(true)
+                    .message("Peticion GET exitosa")
+                    .object(cliente)
+                    .build();
+        }
+    }
+
+    public AuthResponseListObj obtenerMedidoresDeCliente(String rut) {
+        try{
+            Cliente cliente = getClienteByRut(rut);
+            if (cliente == null){
+                System.out.println("cliente nulo en obtenercliente" + cliente);
+                return AuthResponseListObj.builder()
+                        .success(false)
+                        .message("El cliente no se encuentra en la base de datos")
+                        .object(null)
+                        .build();
+            }else{
+                Long clienteId = cliente.getId();
+                List<UsuarioMedidor> usuarioMedidores = usuarioMedidorRepository.findByClienteId(clienteId);
+                System.out.println("Lista de los medidores del usuario en service, antes del return " + usuarioMedidores.toString());
+                System.out.println(usuarioMedidores);
+
+                List<Medidor> medidores = usuarioMedidores.stream()
+                        .map(UsuarioMedidor::getMedidor)
+                        .collect(Collectors.toList());
+                System.out.println(medidores);
+                return AuthResponseListObj.builder()
+                        .success(true)
+                        .message("Peticion GET exitosa")
+                        .object(medidores)
+                        .build();
+            }
+        }catch(Exception e){
+            return AuthResponseListObj.builder()
+                    .success(false)
+                    .message("Peticion GET rechazada. Ocurrio un error al intentar obtener el medidor")
+                    .object(null)
+                    .build();
+        }
+    }
+
+
+    public AuthResponseListObj obtenerConsumosDeMedidor(Long medidorId) {
+        try{
+            List<Consumo> consumos = consumoRepository.findByMedidorId(medidorId);
+            System.out.println("consumos: "+consumos);
+            return AuthResponseListObj.builder()
+                    .success(true)
+                    .message("Peticion GET exitosa")
+                    .object(consumos)
+                    .build();
+        }catch(Exception e){
+            return AuthResponseListObj.builder()
+                    .success(false)
+                    .message("Peticion GET rechazada. Ocurrio un error al intentar obtener el medidor")
+                    .object(null)
+                    .build();
+        }
     }
 
 
@@ -279,18 +298,5 @@ public class ClienteService {
                 .build();
         }
     }
-
-
-    //public Cliente registrarSuministro(Long medidorId, Suministro suministro){
-    //  Medidor medidor = medidorRepository.findById(medidorId)
-    //        .orElseThrow(() -> new RuntimeException("Medidor not found"));
-    //  suministro.setMedidor(medidor);
-    //suministroRepository.save(suministro);
-    //  return getClienteByRut(medidor.getCliente().getRut()); // Devolver el cliente actualizado
-    // }
-
-
-
-
 
 }

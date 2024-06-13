@@ -53,10 +53,12 @@ public class Medidor{
 
     @OneToMany(mappedBy = "medidor")
     @JsonManagedReference
+    @JsonIgnore
     private List<Consumo> consumos;  // Relación con la entidad Consumo
 
     @OneToMany(mappedBy = "medidor") //fetch lazy carga datos relacionados solo cuando se accede a ellos explicitamente
     @JsonManagedReference
+    @JsonIgnore
     private List<Suministro> suministros;  // Relación con la entidad Consumo
 
 

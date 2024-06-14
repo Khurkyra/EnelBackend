@@ -252,6 +252,8 @@ public class ClienteService {
                 nuevoMedidor.setComuna(medidorRequest.getComuna());
                 nuevoMedidor.setDireccion(medidorRequest.getDireccion());
                 nuevoMedidor.setFecha(fechaEspecifica);
+                nuevoMedidor.setTipoTarifa("BT-1");
+                nuevoMedidor.setTarifa(140);
                 Medidor medidorGuardado = medidorRepository.save(nuevoMedidor);
 
                 UsuarioMedidor usuarioMedidor = new UsuarioMedidor();
@@ -273,13 +275,27 @@ public class ClienteService {
     }
 
 
-    public AuthResponse registrarConsumo(Long medidorId, Consumo consumo) {
+    public AuthResponse registrarConsumo(Long medidorId, RegisterConsumoRequest consumo) {
         //arreglar validaciones y fecha.
         try{
             Medidor medidor = medidorRepository.findById(medidorId)
                     .orElseThrow(() -> new RuntimeException("Medidor not found"));
-            consumo.setMedidor(medidor);
-            consumoRepository.save(consumo);
+            // Si el medidor no existe, crearlo y luego la asociación con el cliente
+            Integer lecturaInteger = Integer.parseInt(consumo.getLectura());
+
+            Consumo nuevoConsumo = new Consumo();
+            nuevoConsumo.setFecha(consumo.getFecha());
+            nuevoConsumo.setLectura(lecturaInteger);
+            nuevoConsumo.setConsumo(0);
+            nuevoConsumo.setCostoEnergia(0);
+            nuevoConsumo.setCargoFijo(0);
+            nuevoConsumo.setSubtotal(0);
+            nuevoConsumo.setIva(0);
+            nuevoConsumo.setTotal(0);
+            nuevoConsumo.setMedidor(medidor);
+
+            consumoRepository.save(nuevoConsumo);
+
             return AuthResponse.builder()
                     .success(true)
                     .token("Su consumo ha sido registrado exitosamente")

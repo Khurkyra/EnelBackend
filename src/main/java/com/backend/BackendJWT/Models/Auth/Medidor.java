@@ -10,6 +10,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.Date;
@@ -50,6 +51,18 @@ public class Medidor{
     @NotNull
     @Column(nullable = false)
     private Date fecha;
+
+
+    @NotNull
+    @Size(min = 2, max = 20)
+    @Column(nullable = false, length = 20)
+    private String tipoTarifa;
+
+    @NotNull
+    @Min(0)
+    @Column(nullable = false)
+    private Integer tarifa;
+
 
     @OneToMany(mappedBy = "medidor")
     @JsonManagedReference

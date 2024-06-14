@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
@@ -23,14 +25,51 @@ public class Consumo {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
-    @Size(min = 2, max = 20)
-    @Column(nullable = false, length = 20)
-    private String lectura;
 
     @NotNull
     @Column(nullable = false)
     private Date fecha;
+
+    @NotNull
+    @Column(nullable = false)
+    @Min(0)
+    @Max(999999)
+    private Integer lectura;
+
+
+    @NotNull
+    @Column(nullable = false)
+    @Min(0)
+    @Max(999999)
+    private Integer consumo;
+
+    @NotNull
+    @Min(0)
+    @Column(nullable = false)
+    private Integer costoEnergia;
+
+    @NotNull
+    @Min(0)
+    @Column(nullable = false)
+    private Integer cargoFijo;
+
+    @NotNull
+    @Min(0)
+    @Column(nullable = false)
+    private Integer subtotal;
+
+
+    @NotNull
+    @Min(0)
+    @Column(nullable = false)
+    private Integer iva;
+
+
+    @NotNull
+    @Min(0)
+    @Column(nullable = false)
+    private Integer total;
+
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(nullable = false, name = "medidor_id")

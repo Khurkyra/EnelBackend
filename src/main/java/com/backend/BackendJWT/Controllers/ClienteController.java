@@ -81,25 +81,6 @@ public class ClienteController {
         return ResponseEntity.ok(suministrosDeMedidor);
     }
 
-    //Rutificador
-    @PostMapping("/rut")
-    public ResponseEntity<?> verificarRut(@RequestBody RutRequest request, @RequestHeader("Authorization") String token) {
-        if (token.startsWith("Bearer ")) {
-            token = token.substring(7);
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El token no es valido");
-        }
-        ValidationResponse rutvalidation = RutValidation.validacionModule11(request.getRut());
-        if(!rutvalidation.isSuccess()){
-            //Cliente cliente = clienteService.getClienteByRut(rut);
-            String response = "rut malo";
-            return ResponseEntity.ok(response + rutvalidation.getMessage());
-        }
-        //Cliente cliente = clienteService.getClienteByRut(rut);
-        String response = "rut bueno";
-        return ResponseEntity.ok(response);
-
-    }
 
     //Entrega fecha de consumo para registrar consumo del medidor.
     @GetMapping("/medidores/{medidorId}/getFechaConsumo")
@@ -131,13 +112,12 @@ public class ClienteController {
 
     //Crear consumo de medidor
     @PostMapping("/medidores/{medidorId}/consumos")
-    public ResponseEntity<?> registrarConsumo(@PathVariable Long medidorId, @RequestBody Consumo consumo, @RequestHeader("Authorization") String token) {
+    public ResponseEntity<?> registrarConsumo(@PathVariable Long medidorId, @RequestBody RegisterConsumoRequest consumo, @RequestHeader("Authorization") String token) {
         if (token.startsWith("Bearer ")) {
             token = token.substring(7);
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El token no es valido");
         }
-
         AuthResponse nuevoConsumo = clienteService.registrarConsumo(medidorId, consumo);// Obtener los datos actualizados del cliente
         return ResponseEntity.ok(nuevoConsumo);
     }

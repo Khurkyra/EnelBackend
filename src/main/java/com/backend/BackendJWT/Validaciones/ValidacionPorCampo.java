@@ -53,16 +53,6 @@ public class ValidacionPorCampo {
     }
 
 
-    public static ValidationResponse validacionPorCampoConsumo(RegisterConsumoRequest request) {
-        if (request.getLectura() == null || request.getLectura().isEmpty() || request.getLectura().trim().isEmpty() || request.getLectura().contains(" ")){
-            return new ValidationResponse(false, "La cantidad de consumo es obligatoria, no puede ser nula, vacia o tener espacios vacios.");
-        }
-        if(!StringValidation.IsOnlyNumeric(request.getLectura()) || request.getLectura().length() <=4 || request.getLectura().length()>=30){
-            return new ValidationResponse(false, "El campo comuna debe tener solo numeros, un mínimo de 2 caracteres y un maximo de 20 caracteres.");
-        }
-        return new ValidationResponse(true, "Todos los campos son válidos");
-    }
-
 
     public static ValidationResponse validacionPorCampoMedidor(RegisterMedidorRequest request) {
         if(request.getRegion() == null || request.getRegion().isEmpty() || request.getRegion().trim().isEmpty()){

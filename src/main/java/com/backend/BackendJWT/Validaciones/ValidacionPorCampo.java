@@ -51,6 +51,8 @@ public class ValidacionPorCampo {
         }
         return new ValidationResponse(true, "Todos los campos son válidos");
     }
+
+
     public static ValidationResponse validacionPorCampoConsumo(RegisterConsumoRequest request) {
         if (request.getLectura() == null || request.getLectura().isEmpty() || request.getLectura().trim().isEmpty() || request.getLectura().contains(" ")){
             return new ValidationResponse(false, "La cantidad de consumo es obligatoria, no puede ser nula, vacia o tener espacios vacios.");

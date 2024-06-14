@@ -7,6 +7,7 @@ import com.backend.BackendJWT.Repositories.Auth.ConsumoRepository;
 import com.backend.BackendJWT.Repositories.Auth.MedidorRepository;
 import com.backend.BackendJWT.Repositories.Auth.UsuarioMedidorRepository;
 import com.backend.BackendJWT.Services.ClienteService;
+import com.backend.BackendJWT.Validaciones.RutValidation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -80,7 +81,25 @@ public class ClienteController {
         return ResponseEntity.ok(suministrosDeMedidor);
     }
 
+    //Rutificador
+    @PostMapping("/rut")
+    public ResponseEntity<?> verificarRut(@RequestBody RutRequest request, @RequestHeader("Authorization") String token) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El token no es valido");
+        }
+        ValidationResponse rutvalidation = RutValidation.validacionModule11(request.getRut());
+        if(!rutvalidation.isSuccess()){
+            //Cliente cliente = clienteService.getClienteByRut(rut);
+            String response = "rut malo";
+            return ResponseEntity.ok(response + rutvalidation.getMessage());
+        }
+        //Cliente cliente = clienteService.getClienteByRut(rut);
+        String response = "rut bueno";
+        return ResponseEntity.ok(response);
 
+    }
 
     //Entrega fecha de consumo para registrar consumo del medidor.
     @GetMapping("/medidores/{medidorId}/getFechaConsumo")

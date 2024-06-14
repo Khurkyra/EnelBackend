@@ -1,6 +1,7 @@
 package com.backend.BackendJWT.Models.Auth;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,6 +29,7 @@ public class Consumo {
 
     @NotNull
     @Column(nullable = false)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date fecha;
 
     @NotNull
@@ -48,10 +50,6 @@ public class Consumo {
     @Column(nullable = false)
     private Integer costoEnergia;
 
-    @NotNull
-    @Min(0)
-    @Column(nullable = false)
-    private Integer cargoFijo;
 
     @NotNull
     @Min(0)

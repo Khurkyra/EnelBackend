@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -155,9 +156,12 @@ public class ClienteService {
             Medidor medidor = medidorRepository.findById(medidorId)
                     .orElseThrow(() -> new RuntimeException("Medidor not found"));
             Date fechamedidor = medidor.getFecha();
+            // Formatear la fecha
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+            String formattedDate = formatter.format(fechamedidor);
             return GetFechaResponse.builder()
                     .success(true)
-                    .fecha(fechamedidor)
+                    .fecha(formattedDate)
                     .message("Fecha obtenida exitosamente")
                     .build();
         }catch(RuntimeException e){
@@ -254,6 +258,7 @@ public class ClienteService {
                 nuevoMedidor.setFecha(fechaEspecifica);
                 nuevoMedidor.setTipoTarifa("BT-1");
                 nuevoMedidor.setTarifa(140);
+                nuevoMedidor.setCargoFijo(3500);
                 Medidor medidorGuardado = medidorRepository.save(nuevoMedidor);
 
                 UsuarioMedidor usuarioMedidor = new UsuarioMedidor();
@@ -281,17 +286,40 @@ public class ClienteService {
             Medidor medidor = medidorRepository.findById(medidorId)
                     .orElseThrow(() -> new RuntimeException("Medidor not found"));
             // Si el medidor no existe, crearlo y luego la asociación con el cliente
+
+            //tarifa = 140 kWH para tarifa BT-1
+            Integer tarifa = medidor.getTarifa();
+            Integer cargoFijo = medidor.getCargoFijo();
+            System.out.println("cargoFijo calculado: "+cargoFijo);
+
+
             Integer lecturaInteger = Integer.parseInt(consumo.getLectura());
+            // Obtener la última lectura del medidor
+            Optional<Consumo> ultimoConsumoOpt = consumoRepository.findTopByMedidorIdOrderByFechaDesc(medidorId);
+
+            Integer ultimaLectura = ultimoConsumoOpt.map(Consumo::getLectura).orElse(0);
+            Integer consumoCalculado = lecturaInteger - ultimaLectura;
+            Integer costoEnergia =consumoCalculado*tarifa;
+            Integer subtotalCalculado = costoEnergia+cargoFijo;
+            Integer iva = subtotalCalculado*19/100;
+            Integer total = subtotalCalculado+iva;
+
+            System.out.println("ultima lectura: "+ultimaLectura);
+            System.out.println("ultimo consumo: "+ultimoConsumoOpt);
+            System.out.println("costoEnergia: "+costoEnergia);
+            System.out.println("subtotal carculado: "+subtotalCalculado);
+            System.out.println("iva: "+iva);
+            System.out.println("total calculado: "+total);
+
 
             Consumo nuevoConsumo = new Consumo();
             nuevoConsumo.setFecha(consumo.getFecha());
             nuevoConsumo.setLectura(lecturaInteger);
-            nuevoConsumo.setConsumo(0);
-            nuevoConsumo.setCostoEnergia(0);
-            nuevoConsumo.setCargoFijo(0);
-            nuevoConsumo.setSubtotal(0);
-            nuevoConsumo.setIva(0);
-            nuevoConsumo.setTotal(0);
+            nuevoConsumo.setConsumo(consumoCalculado);
+            nuevoConsumo.setCostoEnergia(costoEnergia);
+            nuevoConsumo.setSubtotal(subtotalCalculado);
+            nuevoConsumo.setIva(iva);
+            nuevoConsumo.setTotal(total);
             nuevoConsumo.setMedidor(medidor);
 
             consumoRepository.save(nuevoConsumo);

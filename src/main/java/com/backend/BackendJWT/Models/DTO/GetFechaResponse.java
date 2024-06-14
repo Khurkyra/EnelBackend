@@ -13,6 +13,6 @@ import java.util.Date;
 @NoArgsConstructor
 public class GetFechaResponse {
     private boolean success;
-    private Date fecha;
+    private String fecha;
     private String message;
 }

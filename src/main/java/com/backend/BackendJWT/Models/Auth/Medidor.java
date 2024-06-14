@@ -1,6 +1,7 @@
 package com.backend.BackendJWT.Models.Auth;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -50,6 +51,7 @@ public class Medidor{
 
     @NotNull
     @Column(nullable = false)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date fecha;
 
 
@@ -62,6 +64,12 @@ public class Medidor{
     @Min(0)
     @Column(nullable = false)
     private Integer tarifa;
+
+
+    @NotNull
+    @Min(0)
+    @Column(nullable = false)
+    private Integer cargoFijo;
 
 
     @OneToMany(mappedBy = "medidor")

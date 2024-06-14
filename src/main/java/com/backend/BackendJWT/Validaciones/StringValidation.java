@@ -24,8 +24,7 @@ public class StringValidation {
     }
     //con espacios blancos opcionales
     public static Boolean IsOnlyAlphaNumeric(String text){
-        Pattern pattern = Pattern.compile("^(?=.*[a-zA-Z])(?=.*[0-9])[a-zA-Z0-9\\s]+$");
-
+        Pattern pattern = Pattern.compile("^(?=.*[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ])(?=.*[0-9])[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ0-9\\s.]+$");
         Matcher matcher = pattern.matcher(text);
         if (matcher.matches()) {
             return true;
@@ -34,9 +33,9 @@ public class StringValidation {
         }
     }
     //con espacios blancos opcionales
+    //se anaden acentos, puntos y apostrofes.
     public static Boolean IsOnlyAlphabeticAndBlank(String text){
-        Pattern pattern = Pattern.compile("^(?=.*[a-zA-Z])[a-zA-Z\\s]+$");
-
+        Pattern pattern = Pattern.compile("^(?=.*[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ])[a-zA-ZáéíóúÁÉÍÓÚüÜñÑ0-9\\s.'’]+$");
         Matcher matcher = pattern.matcher(text);
         if(matcher.matches()) {
             return true;

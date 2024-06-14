@@ -58,20 +58,20 @@ public class ValidacionPorCampo {
         if(request.getRegion() == null || request.getRegion().isEmpty() || request.getRegion().trim().isEmpty()){
             return new ValidationResponse(false, "El campo region es obligatorio, no puede ser nulo o vacio.");
         }
-        if(!StringValidation.IsOnlyAlphabeticAndBlank(request.getRegion()) || request.getRegion().length() <=4 || request.getRegion().length()>=30){
-            return new ValidationResponse(false, "El campo region debe tener solo letras, un mínimo de 4 caracteres y un maximo de 30 caracteres.");
+        if(!StringValidation.IsOnlyAlphabeticAndBlank(request.getRegion()) || request.getRegion().length() <=2 || request.getRegion().length()>=100){
+            return new ValidationResponse(false, "El campo region debe tener solo letras, un mínimo de 2 caracteres y un maximo de 100 caracteres.");
         }
         if(request.getComuna() == null || request.getComuna().isEmpty() || request.getComuna().trim().isEmpty()){
             return new ValidationResponse(false, "El campo comuna es obligatorio, no puede ser nulo o vacio.");
         }
-        if(!StringValidation.IsOnlyAlphabeticAndBlank(request.getComuna()) || request.getComuna().length() <=4 || request.getComuna().length()>=30){
-            return new ValidationResponse(false, "El campo comuna debe tener solo letras, un mínimo de 4 caracteres y un maximo de 30 caracteres.");
+        if(!StringValidation.IsOnlyAlphabeticAndBlank(request.getComuna()) || request.getComuna().length() <=2 || request.getComuna().length()>=100){
+            return new ValidationResponse(false, "El campo comuna debe tener solo letras, un mínimo de 2 caracteres y un maximo de 100 caracteres.");
         }
         if(request.getDireccion() == null || request.getDireccion().isEmpty() || request.getDireccion().trim().isEmpty()){
             return new ValidationResponse(false, "El campo dirección es obligatorio, no puede ser nulo o vacio.");
         }
-        if(request.getDireccion().length() <=4 || request.getDireccion().length()>=60){
-            return new ValidationResponse(false, "El campo dirección debe tener un mínimo de 4 caracteres y un maximo de 60 caracteres.");
+        if(request.getDireccion().length() <=2 || request.getDireccion().length()>=150){
+            return new ValidationResponse(false, "El campo dirección debe tener un mínimo de 2 caracteres y un maximo de 150 caracteres.");
         }
         if(!StringValidation.IsOnlyAlphaNumeric(request.getDireccion())){
             return new ValidationResponse(false, "El campo dirección debe tener el nombre de la calle y enumeración");

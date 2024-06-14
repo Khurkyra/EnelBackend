@@ -29,18 +29,18 @@ public class Medidor{
     private Long id;
 
     @NotNull
-    @Size(min = 4, max = 30)
-    @Column(nullable = false, length = 30)
+    @Size(min = 2, max = 100)
+    @Column(nullable = false, length = 100)
     private String region;
 
     @NotNull
-    @Size(min = 4, max = 30)
-    @Column(nullable = false, length = 30)
+    @Size(min = 2, max = 100)
+    @Column(nullable = false, length = 100)
     private String comuna;
 
     @NotNull
-    @Size(min = 4, max = 60)
-    @Column(nullable = false, length = 60)
+    @Size(min = 2, max = 150)
+    @Column(nullable = false, length = 150)
     private String direccion;
 
     @NotNull

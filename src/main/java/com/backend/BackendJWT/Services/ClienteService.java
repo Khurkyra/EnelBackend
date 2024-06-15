@@ -194,8 +194,12 @@ public class ClienteService {
                         .token("" + validacionPorCampo.getMessage())
                         .build();
             }
+            System.out.println("cliente recibido: "+ cliente);
+            cliente.setEmail(updateClienteRequest.getEmail());
+            cliente.setPhoneNumber(updateClienteRequest.getPhoneNumber());
             cliente.setPassword(passwordEncoder.encode(updateClienteRequest.getPassword()));
             clienteRepository.save(cliente);
+            System.out.println("cliente actualizado: "+cliente);
             return AuthResponse.builder()
                     .success(true)
                     .token("Datos actualizados exitosamente")

@@ -12,22 +12,19 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.validation.constraints.Email;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
 
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
 @Data
-@Table(name = "cliente")
-public class Cliente implements UserDetails {
+@Table(name = "admin")
+public class Admin implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -71,11 +68,6 @@ public class Cliente implements UserDetails {
     @JsonIgnore
     private Role role;
 
-    @OneToMany(mappedBy = "cliente")
-    @JsonManagedReference // Indica el lado que es el propietario de la relación
-    @JsonIgnore
-    private List<UsuarioMedidor> usuarioMedidores;
-
 
     @Override
     public String getUsername() {
@@ -106,7 +98,7 @@ public class Cliente implements UserDetails {
 
     @Override
     public String toString() {
-        return "Cliente{" +
+        return "Admin{" +
                 "id=" + id +
                 ", firstname='" + firstname + '\'' +
                 ", lastname='" + lastname + '\'' +
@@ -115,7 +107,6 @@ public class Cliente implements UserDetails {
                 ", password='" + password + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", role=" + role +
-                ", usuarioMedidores=" + (usuarioMedidores != null ? usuarioMedidores.size() + " usuarioMedidores" : "0 usuarioMedidores") +
                 '}';
     }
 }

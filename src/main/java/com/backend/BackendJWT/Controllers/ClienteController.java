@@ -106,7 +106,6 @@ public class ClienteController {
         String rut = jwtService.getUserIdFromToken(token);
         //Cliente cliente = clienteService.getClienteByRut(rut);
         return ResponseEntity.ok(clienteService.registrarMedidor(medidorRequest, rut));
-
     }
 
 

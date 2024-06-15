@@ -37,17 +37,20 @@ public class ValidacionPorCampo {
     }
 
     public static ValidationResponse validacionPorCampoUpdate(UpdateClienteRequest request) {
-        if(!isValidEmail(request.getEmail()) || request.getEmail().contains(" ")){
-            return new ValidationResponse(false, "El campo email es invalido. Debe tener una longitud entre 4 y 50 caracteres, un @ y un dominio. No puede tener espacios vacios.");
+        if(request.getEmail()!= null){
+            if(request.getEmail().contains(" ")){
+                return new ValidationResponse(false, "El campo email no puede tener espacios vacios.");
+            }
         }
-        if(!isValidPhoneNumber(request.getPhoneNumber()) || request.getPhoneNumber().contains(" ")){
-            return new ValidationResponse(false, "El campo celular es invalido. Debe tener solo numeros con una longitud de 8 digitos, sin el prefijo +569. No puede tener espacios vacios.");
+        if(request.getPhoneNumber()!= null){
+            if(request.getPhoneNumber().contains(" ")){
+                return new ValidationResponse(false, "El campo celular no puede tener espacios vacios.");
+            }
         }
-        if (request.getPassword() == null || request.getPassword().isEmpty() || request.getPassword().trim().isEmpty() || request.getPassword().contains(" ")) {
-            return new ValidationResponse(false, "El password rut no puede estar vacio, ni tener espacios vacios.");
-        }
-        if(!StringValidation.validatePassword(request.getPassword()) || request.getPassword().contains(" ")){
-            return new ValidationResponse(false, "El campo password debe tener minimo de ocho caracteres y maximo 15, con al menos una letra mayuscula, una letra minuscula y un numero.");
+        if(request.getPassword()!= null){
+            if (request.getPassword().contains(" ")) {
+                return new ValidationResponse(false, "El campo password no puede tener espacios vacios.");
+            }
         }
         return new ValidationResponse(true, "Todos los campos son válidos");
     }

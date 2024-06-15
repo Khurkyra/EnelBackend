@@ -195,9 +195,15 @@ public class ClienteService {
                         .build();
             }
             System.out.println("cliente recibido: "+ cliente);
-            cliente.setEmail(updateClienteRequest.getEmail());
-            cliente.setPhoneNumber(updateClienteRequest.getPhoneNumber());
-            cliente.setPassword(passwordEncoder.encode(updateClienteRequest.getPassword()));
+            if(updateClienteRequest.getEmail() != null){
+                cliente.setEmail(updateClienteRequest.getEmail());
+            }
+            if(updateClienteRequest.getPassword() != null){
+                cliente.setPassword(passwordEncoder.encode(updateClienteRequest.getPassword()));
+            }
+            if(updateClienteRequest.getPhoneNumber() != null){
+                cliente.setPhoneNumber(updateClienteRequest.getPhoneNumber());
+            }
             clienteRepository.save(cliente);
             System.out.println("cliente actualizado: "+cliente);
             return AuthResponse.builder()

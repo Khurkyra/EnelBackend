@@ -209,17 +209,17 @@ public class AuthService {
                             .token("El campo contraseña no puede tener espacios vacios")
                             .build();
                 }
-                if(StringValidation.validatePassword(request.getNewPassword())){
+                if(!StringValidation.validatePassword(request.getNewPassword()) || request.getNewPassword().contains(" ")){
+                    return AuthResponse.builder()
+                            .success(false)
+                            .token("El campo password debe tener minimo de ocho caracteres y maximo 15, con al menos una letra mayuscula, una letra minuscula y un numero")
+                            .build();
+                }else{
                     cliente.setPassword(passwordEncoder.encode(request.getNewPassword()));
 
                     return AuthResponse.builder()
                             .success(true)
                             .token("Se ha actualizado su contraseña")
-                            .build();
-                }else{
-                    return AuthResponse.builder()
-                            .success(false)
-                            .token("El campo password debe tener minimo de ocho caracteres y maximo 15, con al menos una letra mayuscula, una letra minuscula y un numero")
                             .build();
                 }
             }else{

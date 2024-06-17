@@ -122,7 +122,19 @@ public class ClienteController {
     }
 
 
-    //Crear consumo de medidor
+    //Cotizacion de consumo de medidor
+    @PostMapping("/medidores/{medidorId}/cotizarConsumo")
+    public ResponseEntity<?> cotizarConsumo(@PathVariable Long medidorId, @RequestBody RegisterConsumoRequest consumo, @RequestHeader("Authorization") String token) {
+        if (token.startsWith("Bearer ")) {
+            token = token.substring(7);
+        } else {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El token no es valido");
+        }
+        AuthResponseObj cotizacionConsumo = clienteService.cotizarConsumo(medidorId, consumo);// Obtener los datos actualizados del cliente
+        return ResponseEntity.ok(cotizacionConsumo);
+    }
+
+    //Crear suministro de medidor
     @PostMapping("/medidores/{medidorId}/suministro")
     public ResponseEntity<?> registrarSuministro(@PathVariable Long medidorId, @RequestBody Suministro suministro, @RequestHeader("Authorization") String token) {
         if (token.startsWith("Bearer ")) {

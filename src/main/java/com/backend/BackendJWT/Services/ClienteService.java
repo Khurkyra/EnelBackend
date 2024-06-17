@@ -12,6 +12,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -257,6 +259,10 @@ public class ClienteService {
                     usuarioMedidor.setCliente(cliente);
                     usuarioMedidor.setMedidor(medidorExistente.get());
                     usuarioMedidorRepository.save(usuarioMedidor);
+                    return AuthResponse.builder()
+                            .success(true)
+                            .token("El medidor ya está registrado y ha sido asociado a su cuenta. Puede visualizarlo en la sección de Home")
+                            .build();
                 }
             } else {
                 // Si el medidor no existe, crearlo y luego la asociación con el cliente
@@ -275,12 +281,11 @@ public class ClienteService {
                 usuarioMedidor.setCliente(cliente);
                 usuarioMedidor.setMedidor(medidorGuardado);
                 usuarioMedidorRepository.save(usuarioMedidor);
+                return AuthResponse.builder()
+                        .success(true)
+                        .token("Medidor registrado exitosamente")
+                        .build();
             }
-
-            return AuthResponse.builder()
-                    .success(true)
-                    .token("Medidor registrado exitosamente")
-                    .build();
         } catch (Exception e) {
             return AuthResponse.builder()
                     .success(false)
@@ -289,8 +294,8 @@ public class ClienteService {
         }
     }
 
-
-    public AuthResponse registrarConsumo(Long medidorId, RegisterConsumoRequest consumo) {
+    //cotiza el consumo de un medidor, sin guardar el valor.
+    public AuthResponseObj cotizarConsumo(Long medidorId, RegisterConsumoRequest consumo) {
         //arreglar validaciones y fecha.
         try{
             Medidor medidor = medidorRepository.findById(medidorId)
@@ -332,12 +337,100 @@ public class ClienteService {
             nuevoConsumo.setTotal(total);
             nuevoConsumo.setMedidor(medidor);
 
-            consumoRepository.save(nuevoConsumo);
-
-            return AuthResponse.builder()
+            return AuthResponseObj.builder()
                     .success(true)
-                    .token("Su consumo ha sido registrado exitosamente")
+                    .message("Su cotizacion ha sido realizada con éxito")
+                    .object(nuevoConsumo)
                     .build();
+
+        }catch(RuntimeException e){
+            //hacerlo mas especifico, ya que ante cualquier error caera aca, y este debe solo ser para
+            //un medidor que no se encuentra en la base de datos/
+            return AuthResponseObj.builder()
+                    .success(false)
+                    .message("El medidor seleccionado no se encuentra en la base de datos")
+                    .object(null)
+                    .build();
+
+        }catch(Exception e){
+            return AuthResponseObj.builder()
+                    .success(false)
+                    .message("Ocurrio un error al intentar cotizar su consumo")
+                    .object(null)
+                    .build();
+        }
+    }
+
+
+    //calcula si la fecha de registro de consumo esta dentro del rango permitido.
+    public static boolean diaDelMesEnRango(Date fecha1, Date fecha2) {
+        LocalDate localDate1 = fecha1.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate localDate2 = fecha2.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        // Obtener el día del mes de ambas fechas
+        int dia1 = localDate1.getDayOfMonth();
+        int dia2 = localDate2.getDayOfMonth();
+        // Verificar si están en el rango de -1 a 1 días de diferencia
+        return Math.abs(dia1 - dia2) <= 1;
+    }
+
+
+
+    public AuthResponse registrarConsumo(Long medidorId, RegisterConsumoRequest consumo) {
+        //arreglar validaciones y fecha.
+        try{
+            Medidor medidor = medidorRepository.findById(medidorId)
+                    .orElseThrow(() -> new RuntimeException("Medidor not found"));
+            // Si el medidor no existe, crearlo y luego la asociación con el cliente
+            Date fechaLecturaMedidor = medidor.getFecha();
+            Date fechaLecturaConsumo = consumo.getFecha();
+            if(diaDelMesEnRango(fechaLecturaMedidor, fechaLecturaConsumo)){
+                //tarifa = 140 kWH para tarifa BT-1
+                Integer tarifa = medidor.getTarifa();
+                Integer cargoFijo = medidor.getCargoFijo();
+                System.out.println("cargoFijo calculado: "+cargoFijo);
+
+
+                Integer lecturaInteger = Integer.parseInt(consumo.getLectura());
+                // Obtener la última lectura del medidor
+                Optional<Consumo> ultimoConsumoOpt = consumoRepository.findTopByMedidorIdOrderByFechaDesc(medidorId);
+
+                Integer ultimaLectura = ultimoConsumoOpt.map(Consumo::getLectura).orElse(0);
+                Integer consumoCalculado = lecturaInteger - ultimaLectura;
+                Integer costoEnergia =consumoCalculado*tarifa;
+                Integer subtotalCalculado = costoEnergia+cargoFijo;
+                Integer iva = subtotalCalculado*19/100;
+                Integer total = subtotalCalculado+iva;
+
+                System.out.println("ultima lectura: "+ultimaLectura);
+                System.out.println("ultimo consumo: "+ultimoConsumoOpt);
+                System.out.println("costoEnergia: "+costoEnergia);
+                System.out.println("subtotal carculado: "+subtotalCalculado);
+                System.out.println("iva: "+iva);
+                System.out.println("total calculado: "+total);
+
+
+                Consumo nuevoConsumo = new Consumo();
+                nuevoConsumo.setFecha(consumo.getFecha());
+                nuevoConsumo.setLectura(lecturaInteger);
+                nuevoConsumo.setConsumo(consumoCalculado);
+                nuevoConsumo.setCostoEnergia(costoEnergia);
+                nuevoConsumo.setSubtotal(subtotalCalculado);
+                nuevoConsumo.setIva(iva);
+                nuevoConsumo.setTotal(total);
+                nuevoConsumo.setMedidor(medidor);
+
+                consumoRepository.save(nuevoConsumo);
+
+                return AuthResponse.builder()
+                        .success(true)
+                        .token("Su consumo ha sido registrado exitosamente")
+                        .build();
+            }else{
+                return AuthResponse.builder()
+                        .success(false)
+                        .token("No se encuentra dentro de la fecha permitida. Fecha medidor: "+fechaLecturaMedidor+ "Fecha consumo: "+fechaLecturaConsumo)
+                        .build();
+            }
         }catch(RuntimeException e){
             //hacerlo mas especifico, ya que ante cualquier error caera aca, y este debe solo ser para
             //un medidor que no se encuentra en la base de datos/

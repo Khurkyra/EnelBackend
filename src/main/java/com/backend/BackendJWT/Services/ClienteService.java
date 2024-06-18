@@ -40,7 +40,6 @@ public class ClienteService {
 
     //GETS
     public Cliente getClienteByRut(String rut) {
-        System.out.println("cliente rut en getCliente: "+rut);
         try{
             Cliente cliente = clienteRepository.getClienteByRut(rut);
             if(cliente != null){
@@ -57,17 +56,14 @@ public class ClienteService {
 
 
     public AuthResponseObj obtenerCliente(String rut){
-        System.out.println("cliente rut: "+rut);
         Cliente cliente = getClienteByRut(rut);
         if (cliente == null){
-            System.out.println("cliente nulo en obtenercliente" + cliente);
             return AuthResponseObj.builder()
                     .success(false)
                     .message("El cliente no se encuentra en la base de datos")
                     .object(null)
                     .build();
         }else{
-            System.out.println("cliente encontrado en obtenercliente" + cliente);
             return AuthResponseObj.builder()
                     .success(true)
                     .message("Peticion GET exitosa")
@@ -82,7 +78,6 @@ public class ClienteService {
         try{
             Cliente cliente = getClienteByRut(rut);
             if (cliente == null){
-                System.out.println("cliente nulo en obtenercliente" + cliente);
                 return AuthResponseListObj.builder()
                         .success(false)
                         .message("El cliente no se encuentra en la base de datos")
@@ -91,13 +86,10 @@ public class ClienteService {
             }else{
                 Long clienteId = cliente.getId();
                 List<UsuarioMedidor> usuarioMedidores = usuarioMedidorRepository.findByClienteId(clienteId);
-                System.out.println("Lista de los medidores del usuario en service, antes del return " + usuarioMedidores.toString());
-                System.out.println(usuarioMedidores);
 
                 List<Medidor> medidores = usuarioMedidores.stream()
                         .map(UsuarioMedidor::getMedidor)
                         .collect(Collectors.toList());
-                System.out.println(medidores);
                 return AuthResponseListObj.builder()
                         .success(true)
                         .message("Peticion GET exitosa")
@@ -117,7 +109,6 @@ public class ClienteService {
     public AuthResponseListObj obtenerConsumosDeMedidor(Long medidorId) {
         try{
             List<Consumo> consumos = consumoRepository.findByMedidorId(medidorId);
-            System.out.println("consumos: "+consumos);
             return AuthResponseListObj.builder()
                     .success(true)
                     .message("Peticion GET exitosa")
@@ -136,7 +127,6 @@ public class ClienteService {
     public AuthResponseListObj obtenerSuministrosDeMedidor(Long medidorId) {
         try{
             List<Suministro> suministros = suministroRepository.findByMedidorId(medidorId);
-            System.out.println("suministros: "+suministros);
             return AuthResponseListObj.builder()
                     .success(true)
                     .message("Peticion GET exitosa")
@@ -186,7 +176,6 @@ public class ClienteService {
     //PATCHS
     public AuthResponse actualizarClienteParcial(String rut, UpdateClienteRequest updateClienteRequest) {
         Cliente cliente = clienteRepository.getClienteByRut(rut);
-        System.out.println("cliente: " + cliente.toString());
 
         try {
             ValidationResponse validacionPorCampo = ValidacionPorCampo.validacionPorCampoUpdate(updateClienteRequest);
@@ -196,7 +185,6 @@ public class ClienteService {
                         .token("" + validacionPorCampo.getMessage())
                         .build();
             }
-            System.out.println("cliente recibido: "+ cliente);
             if(updateClienteRequest.getEmail() != null){
                 cliente.setEmail(updateClienteRequest.getEmail());
             }
@@ -207,7 +195,6 @@ public class ClienteService {
                 cliente.setPhoneNumber(updateClienteRequest.getPhoneNumber());
             }
             clienteRepository.save(cliente);
-            System.out.println("cliente actualizado: "+cliente);
             return AuthResponse.builder()
                     .success(true)
                     .token("Datos actualizados exitosamente")
@@ -305,8 +292,6 @@ public class ClienteService {
             //tarifa = 140 kWH para tarifa BT-1
             Integer tarifa = medidor.getTarifa();
             Integer cargoFijo = medidor.getCargoFijo();
-            System.out.println("cargoFijo calculado: "+cargoFijo);
-
 
             Integer lecturaInteger = Integer.parseInt(consumo.getLectura());
             // Obtener la última lectura del medidor
@@ -318,14 +303,6 @@ public class ClienteService {
             Integer subtotalCalculado = costoEnergia+cargoFijo;
             Integer iva = subtotalCalculado*19/100;
             Integer total = subtotalCalculado+iva;
-
-            System.out.println("ultima lectura: "+ultimaLectura);
-            System.out.println("ultimo consumo: "+ultimoConsumoOpt);
-            System.out.println("costoEnergia: "+costoEnergia);
-            System.out.println("subtotal carculado: "+subtotalCalculado);
-            System.out.println("iva: "+iva);
-            System.out.println("total calculado: "+total);
-
 
             Consumo nuevoConsumo = new Consumo();
             nuevoConsumo.setFecha(consumo.getFecha());
@@ -344,8 +321,6 @@ public class ClienteService {
                     .build();
 
         }catch(RuntimeException e){
-            //hacerlo mas especifico, ya que ante cualquier error caera aca, y este debe solo ser para
-            //un medidor que no se encuentra en la base de datos/
             return AuthResponseObj.builder()
                     .success(false)
                     .message("El medidor seleccionado no se encuentra en la base de datos")
@@ -363,9 +338,7 @@ public class ClienteService {
 
 
     //calcula si la fecha de registro de consumo esta dentro del rango permitido.
-    public static boolean diaDelMesEnRango(Date fecha1, Date fecha2) {
-        LocalDate localDate1 = fecha1.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        LocalDate localDate2 = fecha2.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+    public static boolean diaDelMesEnRango(LocalDate localDate1, LocalDate localDate2) {
         // Obtener el día del mes de ambas fechas
         int dia1 = localDate1.getDayOfMonth();
         int dia2 = localDate2.getDayOfMonth();
@@ -373,6 +346,21 @@ public class ClienteService {
         return Math.abs(dia1 - dia2) <= 1;
     }
 
+    public static boolean consumoExist(LocalDate locaDate3, LocalDate localDate2) {
+        int mes1 = locaDate3.getMonthValue();
+        int mes2 = localDate2.getMonthValue();
+
+        int year1 = locaDate3.getYear();
+        int year2 = localDate2.getYear();
+
+        if(year1 == year2 && mes1 == mes2){
+            return true;
+        }else{
+            return false;
+        }
+
+    }
+    
 
 
     public AuthResponse registrarConsumo(Long medidorId, RegisterConsumoRequest consumo) {
@@ -383,16 +371,28 @@ public class ClienteService {
             // Si el medidor no existe, crearlo y luego la asociación con el cliente
             Date fechaLecturaMedidor = medidor.getFecha();
             Date fechaLecturaConsumo = consumo.getFecha();
-            if(diaDelMesEnRango(fechaLecturaMedidor, fechaLecturaConsumo)){
-                //tarifa = 140 kWH para tarifa BT-1
+
+            LocalDate localDate1 = fechaLecturaMedidor.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalDate localDate2 = fechaLecturaConsumo.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+            // Obtener la última lectura del medidor
+            Optional<Consumo> ultimoConsumoOpt = consumoRepository.findTopByMedidorIdOrderByFechaDesc(medidorId);
+            Date ultimaFechaConsumo = ultimoConsumoOpt.map(Consumo::getFecha).orElse(null);
+            LocalDate localDate3 = ultimaFechaConsumo.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+            if(consumoExist(localDate3, localDate2)){
+                return AuthResponse.builder()
+                        .success(false)
+                        .token("El consumo de este mes ya se encuentra registrado.")
+                        .build();
+            }
+            
+
+            if(diaDelMesEnRango(localDate1, localDate2)){
                 Integer tarifa = medidor.getTarifa();
                 Integer cargoFijo = medidor.getCargoFijo();
-                System.out.println("cargoFijo calculado: "+cargoFijo);
-
 
                 Integer lecturaInteger = Integer.parseInt(consumo.getLectura());
-                // Obtener la última lectura del medidor
-                Optional<Consumo> ultimoConsumoOpt = consumoRepository.findTopByMedidorIdOrderByFechaDesc(medidorId);
 
                 Integer ultimaLectura = ultimoConsumoOpt.map(Consumo::getLectura).orElse(0);
                 Integer consumoCalculado = lecturaInteger - ultimaLectura;
@@ -400,14 +400,6 @@ public class ClienteService {
                 Integer subtotalCalculado = costoEnergia+cargoFijo;
                 Integer iva = subtotalCalculado*19/100;
                 Integer total = subtotalCalculado+iva;
-
-                System.out.println("ultima lectura: "+ultimaLectura);
-                System.out.println("ultimo consumo: "+ultimoConsumoOpt);
-                System.out.println("costoEnergia: "+costoEnergia);
-                System.out.println("subtotal carculado: "+subtotalCalculado);
-                System.out.println("iva: "+iva);
-                System.out.println("total calculado: "+total);
-
 
                 Consumo nuevoConsumo = new Consumo();
                 nuevoConsumo.setFecha(consumo.getFecha());
@@ -432,8 +424,6 @@ public class ClienteService {
                         .build();
             }
         }catch(RuntimeException e){
-            //hacerlo mas especifico, ya que ante cualquier error caera aca, y este debe solo ser para
-            //un medidor que no se encuentra en la base de datos/
             return AuthResponse.builder()
                     .success(false)
                     .token("El medidor seleccionado no se encuentra en la base de datos")

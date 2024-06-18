@@ -92,7 +92,7 @@ public class AuthService {
     }
 
 
-    public AuthResponse register(RegisterRequest request) {
+    public AuthResponse registerCliente(RegisterRequest request) {
         try {
 
             if (clienteRepository.existsByRut(request.getRut())) {

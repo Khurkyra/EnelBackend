@@ -29,11 +29,18 @@ public class AuthController {
         return ResponseEntity.ok(authService.login(request));
     }
 
-    @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@RequestBody RegisterRequest request)
+    @PostMapping("/loginAdmin")
+    public ResponseEntity<AuthResponse> loginAdmin(@RequestBody LoginRequest request)
     {
-        return ResponseEntity.ok(authService.register(request));
+        return ResponseEntity.ok(authService.login(request));
     }
+
+    @PostMapping("/register")
+    public ResponseEntity<AuthResponse> registerCliente(@RequestBody RegisterRequest request)
+    {
+        return ResponseEntity.ok(authService.registerCliente(request));
+    }
+
     //obtiene al usuario para verificar su existencia en el sistema
     @PostMapping("/getEmail")
     public ResponseEntity<AuthResponse>searchUser(@RequestBody SearchUserRequest request){

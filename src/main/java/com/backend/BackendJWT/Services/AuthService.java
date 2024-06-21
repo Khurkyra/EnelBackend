@@ -64,15 +64,34 @@ public class AuthService {
                         .token("El campo password es obligatorio y no puede ser vacio")
                         .build();
             }
-
+            Optional <Cliente> cliente =clienteRepository.findByRut(request.getRut());
+            if(cliente.isPresent()){
+                Role rol = cliente.get().getRole();
+                Long idRol = rol.getId(); // Obtén el ID del rol
+                if(idRol == 1L){
+                    return AuthResponse.builder()
+                            .success(false)
+                            .token("Ingrese sesión en el formulario correspondiente")
+                            .build();
+                }
+            }
+            //I
             //Intenta autenticar al usuario usando el RUT y la contraseña
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getRut(), request.getPassword()));
             //Busca el usuario en el repositorio usando el RUT
-            UserDetails user = adminRepository.findByRut(request.getRut())
+            UserDetails user = clienteRepository.findByRut(request.getRut())
                     .orElseThrow(() -> new AuthenticationException("Usuario no encontrado") {
                     });
             //Genera el token JWT para el usuario
+            if(user.getAuthorities().equals("ROlE_USER")){
+                return AuthResponse.builder()
+                        .success(true)
+                        .token("favor ingresar sesion en el formulario correspondiente")
+                        .build();
+            }
             String token = jwtService.getToken(user);
+
+            System.out.println("user: "+user);
             //Retorna la respuesta con el token
             return AuthResponse.builder()
                     .success(true)
@@ -124,6 +143,17 @@ public class AuthService {
                         .build();
             }
 
+            Optional <Cliente> cliente =clienteRepository.findByRut(request.getRut());
+            if(cliente.isPresent()){
+                    Role rol = cliente.get().getRole();
+                    Long idRol = rol.getId(); // Obtén el ID del rol
+                if(idRol == 2L){
+                    return AuthResponse.builder()
+                            .success(false)
+                            .token("Ingrese sesión en el formulario correspondiente")
+                            .build();
+                }
+            }
             //Intenta autenticar al usuario usando el RUT y la contraseña
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getRut(), request.getPassword()));
             //Busca el usuario en el repositorio usando el RUT
@@ -132,6 +162,7 @@ public class AuthService {
                     });
             //Genera el token JWT para el usuario
             String token = jwtService.getToken(user);
+            System.out.println("user"+user);
             //Retorna la respuesta con el token
             return AuthResponse.builder()
                     .success(true)
@@ -154,14 +185,13 @@ public class AuthService {
 
     public AuthResponse registerAdmin(RegisterRequest request) {
         try {
-
-            if (adminRepository.existsByRut(request.getRut())) {
+            if (clienteRepository.existsByRut(request.getRut())) {
                 return AuthResponse.builder()
                         .success(false)
                         .token("El rut ya esta registrado en la base de datos")
                         .build();
             }
-            if (adminRepository.existsByEmail(request.getEmail())) {
+            if (clienteRepository.existsByEmail(request.getEmail())) {
                 return AuthResponse.builder()
                         .success(false)
                         .token("El email ya existe en la base de datos")
@@ -179,7 +209,7 @@ public class AuthService {
             Role defaultRole = roleRepository.findByRoleName(ERole.ADMIN)
                     .orElseThrow(() -> new Exception("Default role not found"));
 
-            Admin admin = Admin.builder()
+            Cliente cliente = Cliente.builder()
                     .rut(request.getRut())
                     .password(passwordEncoder.encode(request.getPassword()))
                     .firstname(request.getFirstname())
@@ -189,7 +219,7 @@ public class AuthService {
                     .role(defaultRole)  // Set the fetched role
                     .build();
 
-            adminRepository.save(admin);  // Persist the new user with the role in the database.
+            clienteRepository.save(cliente);  // Persist the new user with the role in the database.
 
             // Generate token and return response
             return AuthResponse.builder()

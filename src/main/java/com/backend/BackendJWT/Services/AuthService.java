@@ -3,6 +3,7 @@ package com.backend.BackendJWT.Services;
 import com.backend.BackendJWT.Models.Auth.*;
 import com.backend.BackendJWT.Config.Jwt.JwtService;
 import com.backend.BackendJWT.Models.DTO.*;
+import com.backend.BackendJWT.Repositories.Auth.AdminRepository;
 import com.backend.BackendJWT.Repositories.Auth.RoleRepository;
 import com.backend.BackendJWT.Repositories.Auth.ClienteRepository;
 
@@ -25,12 +26,72 @@ import java.util.Optional;
 public class AuthService {
 
     private final ClienteRepository clienteRepository;
+    private final AdminRepository adminRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
 
     @Autowired
     private RoleRepository roleRepository;
+
+    public AuthResponse loginAdmin(LoginRequest request) {
+        try {
+            // Validar el RUT usando validacionModule11
+            if (request.getRut() == null || request.getRut().isEmpty() || request.getRut().trim().isEmpty()){
+                return AuthResponse.builder()
+                        .success(false)
+                        .token("El campo rut es obligatorio y no puede ser vacio")
+                        .build();
+            }
+            if(request.getRut().contains(" ")){
+                return AuthResponse.builder()
+                        .success(false)
+                        .token("El campo rut no puede tener espacios vacios")
+                        .build();
+            }
+            ValidationResponse rutValidation = RutValidation.validacionModule11(request.getRut());
+            if (!rutValidation.isSuccess()) {
+                return AuthResponse.builder()
+                        .success(false)
+                        .token(""+rutValidation.getMessage())
+                        .build();
+            }
+
+            //Valida Password
+            if (request.getPassword() == null || request.getPassword().isEmpty() || request.getPassword().trim().isEmpty()) {
+                return AuthResponse.builder()
+                        .success(false)
+                        .token("El campo password es obligatorio y no puede ser vacio")
+                        .build();
+            }
+
+            //Intenta autenticar al usuario usando el RUT y la contraseña
+            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getRut(), request.getPassword()));
+            //Busca el usuario en el repositorio usando el RUT
+            UserDetails user = adminRepository.findByRut(request.getRut())
+                    .orElseThrow(() -> new AuthenticationException("Usuario no encontrado") {
+                    });
+            //Genera el token JWT para el usuario
+            String token = jwtService.getToken(user);
+            //Retorna la respuesta con el token
+            return AuthResponse.builder()
+                    .success(true)
+                    .token(token)
+                    .build();
+        }
+        catch (AuthenticationException e){
+            return AuthResponse.builder()
+                    .success(false)
+                    .token("El rut o la contraseña son invalidos")
+                    .build();
+        }
+        catch (Exception e) {
+            return AuthResponse.builder()
+                    .success(false)
+                    .token("Hubo un error al intentar ingresar al home"+e.getMessage())
+                    .build();
+        }
+    }
 
     public AuthResponse login(LoginRequest request) {
         try {
@@ -86,11 +147,65 @@ public class AuthService {
         catch (Exception e) {
         return AuthResponse.builder()
                 .success(false)
-                .token("Hubo un error al intentar ingresar al home")
+                .token("Hubo un error al intentar ingresar al home"+ e.getMessage())
                 .build();
         }
     }
 
+    public AuthResponse registerAdmin(RegisterRequest request) {
+        try {
+
+            if (adminRepository.existsByRut(request.getRut())) {
+                return AuthResponse.builder()
+                        .success(false)
+                        .token("El rut ya esta registrado en la base de datos")
+                        .build();
+            }
+            if (adminRepository.existsByEmail(request.getEmail())) {
+                return AuthResponse.builder()
+                        .success(false)
+                        .token("El email ya existe en la base de datos")
+                        .build();
+            }
+            // Validar el RUT usando validacionModule11
+            ValidationResponse validacionPorCampo = ValidacionPorCampo.validacionPorCampo(request);
+            if (!validacionPorCampo.isSuccess()) {
+                return AuthResponse.builder()
+                        .success(false)
+                        .token(""+validacionPorCampo.getMessage())
+                        .build();
+            }
+            // Fetch the default role
+            Role defaultRole = roleRepository.findByRoleName(ERole.ADMIN)
+                    .orElseThrow(() -> new Exception("Default role not found"));
+
+            Admin admin = Admin.builder()
+                    .rut(request.getRut())
+                    .password(passwordEncoder.encode(request.getPassword()))
+                    .firstname(request.getFirstname())
+                    .lastname(request.getLastname())
+                    .email(request.getEmail())
+                    .phoneNumber(request.getPhoneNumber())
+                    .role(defaultRole)  // Set the fetched role
+                    .build();
+
+            adminRepository.save(admin);  // Persist the new user with the role in the database.
+
+            // Generate token and return response
+            return AuthResponse.builder()
+                    .success(true)
+                    .token("Registro existoso. Por favor ingrese con sus credenciales.")
+                    .build();
+
+        }
+        catch (Exception e) {
+            // Maneja cualquier otra excepción
+            return AuthResponse.builder()
+                    .success(false)
+                    .token("Hubo un error al registrar el usuario"+e.getMessage())
+                    .build();
+        }
+    }
 
     public AuthResponse registerCliente(RegisterRequest request) {
         try {

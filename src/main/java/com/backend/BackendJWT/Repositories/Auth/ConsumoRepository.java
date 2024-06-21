@@ -14,5 +14,4 @@ public interface ConsumoRepository extends JpaRepository<Consumo, Long> {
     // Métodos de consulta personalizados si es necesario
     List<Consumo> findByMedidorId(Long medidorId);
     Optional<Consumo> findTopByMedidorIdOrderByFechaDesc(Long medidorId);
-
 }

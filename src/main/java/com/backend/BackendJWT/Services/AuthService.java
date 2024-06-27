@@ -3,7 +3,6 @@ package com.backend.BackendJWT.Services;
 import com.backend.BackendJWT.Models.Auth.*;
 import com.backend.BackendJWT.Config.Jwt.JwtService;
 import com.backend.BackendJWT.Models.DTO.*;
-import com.backend.BackendJWT.Repositories.Auth.AdminRepository;
 import com.backend.BackendJWT.Repositories.Auth.RoleRepository;
 import com.backend.BackendJWT.Repositories.Auth.ClienteRepository;
 
@@ -26,7 +25,6 @@ import java.util.Optional;
 public class AuthService {
 
     private final ClienteRepository clienteRepository;
-    private final AdminRepository adminRepository;
     private final JwtService jwtService;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;

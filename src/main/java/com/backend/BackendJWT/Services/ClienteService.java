@@ -377,17 +377,16 @@ public class ClienteService {
 
             // Obtener la última lectura del medidor
             Optional<Consumo> ultimoConsumoOpt = consumoRepository.findTopByMedidorIdOrderByFechaDesc(medidorId);
-            Date ultimaFechaConsumo = ultimoConsumoOpt.map(Consumo::getFecha).orElse(null);
-            LocalDate localDate3 = ultimaFechaConsumo.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-
-            if(consumoExist(localDate3, localDate2)){
-                return AuthResponse.builder()
-                        .success(false)
-                        .token("El consumo de este mes ya se encuentra registrado.")
-                        .build();
+            if(ultimoConsumoOpt.isPresent()){
+                Date ultimaFechaConsumo = ultimoConsumoOpt.map(Consumo::getFecha).orElse(null);
+                LocalDate localDate3 = ultimaFechaConsumo.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+                if(consumoExist(localDate3, localDate2)){
+                    return AuthResponse.builder()
+                            .success(false)
+                            .token("El consumo de este mes ya se encuentra registrado.")
+                            .build();
+                }
             }
-            
-
             if(diaDelMesEnRango(localDate1, localDate2)){
                 Integer tarifa = medidor.getTarifa();
                 Integer cargoFijo = medidor.getCargoFijo();
@@ -426,7 +425,7 @@ public class ClienteService {
         }catch(RuntimeException e){
             return AuthResponse.builder()
                     .success(false)
-                    .token("El medidor seleccionado no se encuentra en la base de datos")
+                    .token("El medidor seleccionado no se encuentra en la base de datos"+e.getMessage())
                     .build();
         }catch(Exception e){
             return AuthResponse.builder()

@@ -12,6 +12,8 @@ public interface ClienteRepository extends JpaRepository<Cliente,Long> {
 
     Cliente getClienteByRut(String rut);
 
+    Optional<Cliente> getClienteByEmail(String email);
+
     Optional<Cliente> findByRut(String rut);
 
     Optional<Cliente> findById(Long id);

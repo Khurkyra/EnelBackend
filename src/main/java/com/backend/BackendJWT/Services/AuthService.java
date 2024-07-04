@@ -32,26 +32,25 @@ public class AuthService {
     @Autowired
     private RoleRepository roleRepository;
 
-    public AuthResponse loginAdmin(LoginRequest request) {
+    public AuthResponse loginAdmin(LoginAdminRequest request) {
         try {
             // Validar el RUT usando validacionModule11
-            if (request.getRut() == null || request.getRut().isEmpty() || request.getRut().trim().isEmpty()){
+            if (request.getEmail() == null || request.getEmail().isEmpty() || request.getEmail().trim().isEmpty()){
                 return AuthResponse.builder()
                         .success(false)
-                        .token("El campo rut es obligatorio y no puede ser vacio")
+                        .token("El campo email es obligatorio y no puede ser vacio")
                         .build();
             }
-            if(request.getRut().contains(" ")){
+            if(request.getEmail().contains(" ")){
                 return AuthResponse.builder()
                         .success(false)
-                        .token("El campo rut no puede tener espacios vacios")
+                        .token("El campo email no puede tener espacios vacios")
                         .build();
             }
-            ValidationResponse rutValidation = RutValidation.validacionModule11(request.getRut());
-            if (!rutValidation.isSuccess()) {
+            if(!ValidacionPorCampo.isValidEmail(request.getEmail())){
                 return AuthResponse.builder()
                         .success(false)
-                        .token(""+rutValidation.getMessage())
+                        .token("El campo email es invalido. Debe tener una longitud entre 4 y 50 caracteres, un @ y un dominio. No puede tener espacios vacios.")
                         .build();
             }
 
@@ -62,39 +61,46 @@ public class AuthService {
                         .token("El campo password es obligatorio y no puede ser vacio")
                         .build();
             }
-            Optional <Cliente> cliente =clienteRepository.findByRut(request.getRut());
+            Optional <Cliente> cliente =clienteRepository.getClienteByEmail(request.getEmail());
             if(cliente.isPresent()){
                 Role rol = cliente.get().getRole();
                 Long idRol = rol.getId(); // Obtén el ID del rol
                 if(idRol == 1L){
                     return AuthResponse.builder()
                             .success(false)
-                            .token("Ingrese sesión en el formulario correspondiente")
+                            .token("Su cuenta no pertenece a administrador. Inicie sesión como cliente.")
                             .build();
                 }
-            }
-            //I
-            //Intenta autenticar al usuario usando el RUT y la contraseña
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getRut(), request.getPassword()));
-            //Busca el usuario en el repositorio usando el RUT
-            UserDetails user = clienteRepository.findByRut(request.getRut())
-                    .orElseThrow(() -> new AuthenticationException("Usuario no encontrado") {
-                    });
-            //Genera el token JWT para el usuario
-            if(user.getAuthorities().equals("ROlE_USER")){
+                String rut = cliente.get().getRut();
+                System.out.println(rut);
+                //Intenta autenticar al usuario usando el RUT y la contraseña
+                authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(rut, request.getPassword()));
+                //Busca el usuario en el repositorio usando el RUT
+                UserDetails user = clienteRepository.findByRut(rut)
+                        .orElseThrow(() -> new AuthenticationException("Usuario no encontrado") {
+                        });
+                //Genera el token JWT para el usuario
+                if(user.getAuthorities().equals("ROlE_USER")){
+                    return AuthResponse.builder()
+                            .success(true)
+                            .token("favor ingresar sesion en el formulario correspondiente")
+                            .build();
+                }
+                String token = jwtService.getToken(user);
+
+                System.out.println("user: "+user);
+                //Retorna la respuesta con el token
                 return AuthResponse.builder()
                         .success(true)
-                        .token("favor ingresar sesion en el formulario correspondiente")
+                        .token(token)
                         .build();
             }
-            String token = jwtService.getToken(user);
-
-            System.out.println("user: "+user);
-            //Retorna la respuesta con el token
-            return AuthResponse.builder()
-                    .success(true)
-                    .token(token)
-                    .build();
+            else{
+                return AuthResponse.builder()
+                        .success(false)
+                        .token("El email ingresado es invalido")
+                        .build();
+            }
         }
         catch (AuthenticationException e){
             return AuthResponse.builder()
@@ -109,6 +115,7 @@ public class AuthService {
                     .build();
         }
     }
+
 
     public AuthResponse login(LoginRequest request) {
         try {

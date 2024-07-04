@@ -30,7 +30,7 @@ public class AuthController {
     }
 
     @PostMapping("/loginAdmin")
-    public ResponseEntity<AuthResponse> loginAdmin(@RequestBody LoginRequest request)
+    public ResponseEntity<AuthResponse> loginAdmin(@RequestBody LoginAdminRequest request)
     {
         return ResponseEntity.ok(authService.loginAdmin(request));
     }

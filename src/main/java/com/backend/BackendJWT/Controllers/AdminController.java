@@ -1,7 +1,6 @@
 package com.backend.BackendJWT.Controllers;
 
 import com.backend.BackendJWT.Models.DTO.AuthResponseListObj;
-import com.backend.BackendJWT.Models.DTO.AuthResponseListObjs;
 import com.backend.BackendJWT.Services.AdminService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -48,7 +47,7 @@ public class AdminController {
         }else{
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("El token no es valido");
         }
-        AuthResponseListObjs consumosDeMedidor = adminService.obtenerTodosLosConsumosConMedidores();
+        AuthResponseListObj consumosDeMedidor = adminService.obtenerTodosLosConsumosConMedidores();
         return ResponseEntity.ok(consumosDeMedidor);
     }
 }

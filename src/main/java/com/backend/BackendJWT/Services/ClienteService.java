@@ -224,7 +224,7 @@ public class ClienteService {
             Calendar calendar = Calendar.getInstance();
             calendar.set(Calendar.YEAR, 2024);
             calendar.set(Calendar.MONTH, Calendar.JUNE); // Calendar.JUNE es 5, ya que los meses se indexan desde 0
-            calendar.set(Calendar.DAY_OF_MONTH, 28);
+            calendar.set(Calendar.DAY_OF_MONTH, 06);
 
             // Obtener la fecha como un objeto Date
             Date fechaEspecifica = calendar.getTime();

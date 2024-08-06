@@ -7,7 +7,6 @@ import com.backend.BackendJWT.Models.DTO.ConsumoConComuna;
 import com.backend.BackendJWT.Repositories.Auth.ConsumoRepository;
 import com.backend.BackendJWT.Repositories.Auth.SuministroRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
